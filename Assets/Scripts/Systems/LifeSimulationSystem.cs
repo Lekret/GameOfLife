@@ -40,15 +40,15 @@ namespace Systems
                         ref var isLifeNextSim = ref isLifeNextSimArr[cellEntityIdx].Value;
                         var lifeNeighbours = 0;
                         
-                        bool CheckNeighbour(ref Entity entity) => entity != Entity.Null && World.Get<IsLife>(entity).Value;
-                        if (CheckNeighbour(ref neighbours.N)) lifeNeighbours++;
-                        if (CheckNeighbour(ref neighbours.NE)) lifeNeighbours++;
-                        if (CheckNeighbour(ref neighbours.E)) lifeNeighbours++;
-                        if (CheckNeighbour(ref neighbours.SE)) lifeNeighbours++;
-                        if (CheckNeighbour(ref neighbours.S)) lifeNeighbours++;
-                        if (CheckNeighbour(ref neighbours.SW)) lifeNeighbours++;
-                        if (CheckNeighbour(ref neighbours.W)) lifeNeighbours++;
-                        if (CheckNeighbour(ref neighbours.NW)) lifeNeighbours++;
+                        bool IsNeighbourLife(ref Entity entity) => entity != Entity.Null && World.Get<IsLife>(entity).Value;
+                        if (IsNeighbourLife(ref neighbours.N)) lifeNeighbours++;
+                        if (IsNeighbourLife(ref neighbours.NE)) lifeNeighbours++;
+                        if (IsNeighbourLife(ref neighbours.E)) lifeNeighbours++;
+                        if (IsNeighbourLife(ref neighbours.SE)) lifeNeighbours++;
+                        if (IsNeighbourLife(ref neighbours.S)) lifeNeighbours++;
+                        if (IsNeighbourLife(ref neighbours.SW)) lifeNeighbours++;
+                        if (IsNeighbourLife(ref neighbours.W)) lifeNeighbours++;
+                        if (IsNeighbourLife(ref neighbours.NW)) lifeNeighbours++;
                         
                         var lifeTestArray = isLife ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
                         isLifeNextSim = Array.IndexOf(lifeTestArray, lifeNeighbours) != -1;
