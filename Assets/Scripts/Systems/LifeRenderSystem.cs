@@ -16,7 +16,7 @@ namespace Systems
         public LifeRenderSystem(World world, GameConfig config) : base(world)
         {
             _config = config;
-            _parent = _parent = new GameObject("Graphics").transform;
+            _parent = new GameObject("Graphics").transform;
         }
 
         public override void Initialize()
@@ -24,14 +24,14 @@ namespace Systems
             var query = new QueryDescription().WithAll<Cell, Position>().WithNone<Renderable>();
             World.Query(query, (Entity entity, ref Position position) =>
             {
-                var newObj = new GameObject("Cell");
+                var cellObj = new GameObject("Cell");
                 var renderable = new Renderable
                 {
-                    Renderer = newObj.AddComponent<MeshRenderer>(),
-                    Filter = newObj.AddComponent<MeshFilter>()
+                    Renderer = cellObj.AddComponent<MeshRenderer>(),
+                    Filter = cellObj.AddComponent<MeshFilter>()
                 };
-                newObj.transform.SetParent(_parent);
-                newObj.transform.position = _config.DrawOrigin + new Vector3(
+                cellObj.transform.SetParent(_parent);
+                cellObj.transform.position = _config.DrawOrigin + new Vector3(
                     position.X + _config.DrawWidthSpacing * position.X,
                     position.Y + _config.DrawHeightSpacing * position.Y);
                 entity.Add(renderable);
