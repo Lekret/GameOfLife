@@ -26,21 +26,21 @@ namespace Systems
         {
             foreach (var gridChunk in World.Query(_simulateQuery))
             foreach (var _ in gridChunk)
-            {
+            {                
                 foreach (var cellChunk in World.Query(_cellQuery))
                 {
                     var neighboursArr = cellChunk.GetArray<Neighbours>();
                     var isLifeArr = cellChunk.GetArray<IsLife>();
                     var isLifeNextSimArr = cellChunk.GetArray<IsLifeNextSim>();
-                    
-                    foreach (var cellEntityIdx in cellChunk)
+
+                    for (int cellEntityIdx = 0, chunkSize = cellChunk.Size; cellEntityIdx < chunkSize; cellEntityIdx++)
                     {
                         ref var neighbours = ref neighboursArr[cellEntityIdx];
                         ref var isLife = ref isLifeArr[cellEntityIdx].Value;
                         ref var isLifeNextSim = ref isLifeNextSimArr[cellEntityIdx].Value;
                         var lifeNeighbours = 0;
                         
-                        bool CheckNeighbour(ref Entity entity) => World.Get<IsLife>(entity).Value;
+                        bool CheckNeighbour(ref Entity entity) => entity != Entity.Null && World.Get<IsLife>(entity).Value;
                         if (CheckNeighbour(ref neighbours.N)) lifeNeighbours++;
                         if (CheckNeighbour(ref neighbours.NE)) lifeNeighbours++;
                         if (CheckNeighbour(ref neighbours.E)) lifeNeighbours++;

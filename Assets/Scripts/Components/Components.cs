@@ -1,4 +1,5 @@
 ﻿using Arch.Core;
+using UnityEngine;
 
 namespace Components
 {
@@ -17,7 +18,7 @@ namespace Components
         public Entity W;
         public Entity NW;
     }
-    
+
     public struct IsLife
     {
         public bool Value;
@@ -27,7 +28,7 @@ namespace Components
     {
         public bool Value;
     }
-    
+
     public struct Position
     {
         public int X;
@@ -47,5 +48,11 @@ namespace Components
     {
         public int Width;
         public int Height;
+    }
+
+    public struct Renderable
+    {
+        public MeshRenderer Renderer;
+        public MeshFilter Filter;
     }
 }

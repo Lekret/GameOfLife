@@ -1,41 +1,68 @@
 ﻿using Arch.Core;
+using Arch.Core.Extensions;
 using Components;
 using Config;
 using Core;
 using UnityEngine;
-using View;
 
 namespace Systems
 {
     public class LifeRenderSystem : BaseSystem
     {
-        private readonly QueryDescription _query = new QueryDescription().WithAll<Cell, Position>();
-        private readonly GraphicsEngine _graphicsEngine = new();
+        private readonly QueryDescription _query = new QueryDescription().WithAll<Cell, IsLife, Renderable>();
         private readonly GameConfig _config;
+        private readonly Transform _parent;
 
         public LifeRenderSystem(World world, GameConfig config) : base(world)
         {
             _config = config;
+            _parent = _parent = new GameObject("Graphics").transform;
+        }
+
+        public override void Initialize()
+        {
+            var query = new QueryDescription().WithAll<Cell, Position>().WithNone<Renderable>();
+            World.Query(query, (Entity entity, ref Position position) =>
+            {
+                var newObj = new GameObject("Cell");
+                var renderable = new Renderable
+                {
+                    Renderer = newObj.AddComponent<MeshRenderer>(),
+                    Filter = newObj.AddComponent<MeshFilter>()
+                };
+                newObj.transform.SetParent(_parent);
+                newObj.transform.position = _config.DrawOrigin + new Vector3(
+                    position.X + _config.DrawWidthSpacing * position.X,
+                    position.Y + _config.DrawHeightSpacing * position.Y);
+                entity.Add(renderable);
+            });
         }
 
         public override void Update(in float deltaTime)
         {
-            _graphicsEngine.Clear();
-            
             foreach (var chunk in World.Query(_query))
-            foreach (var entityIdx in chunk)
             {
-                var position = chunk.Get<Position>(entityIdx);
-                var x = position.X;
-                var y = position.Y;
+                var renderableArr = chunk.GetArray<Renderable>();
+                var isLifeArr = chunk.GetArray<IsLife>();
 
-                var isLife = chunk.Get<IsLife>(entityIdx).Value;
-                var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
-                var drawPos = _config.DrawOrigin + new Vector3(
-                    x + _config.DrawWidthSpacing * x,
-                    y + _config.DrawHeightSpacing * y);
-                _graphicsEngine.DrawMesh(drawPos, _config.CellMesh, material);
+                for (int entityIdx = 0, chunkSize = chunk.Size; entityIdx < chunkSize; entityIdx++)
+                {
+                    var renderable = renderableArr[entityIdx];
+                    var isLife = isLifeArr[entityIdx].Value;
+                    var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
+                    renderable.Renderer.material = material;
+                    renderable.Filter.mesh = _config.CellMesh;
+                }
             }
+        }
+
+        public override void Dispose()
+        {
+            var query = new QueryDescription().WithAll<Renderable>();
+            World.Query(query, (ref Renderable renderable) =>
+            {
+                Object.Destroy(renderable.Renderer.gameObject);
+            });
         }
     }
 }

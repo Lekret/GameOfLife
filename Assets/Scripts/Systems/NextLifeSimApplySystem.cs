@@ -14,9 +14,9 @@ namespace Systems
 
         public override void Update(in float deltaTime)
         {
-            World.Query(_query, (ref IsLife IsLife, ref IsLifeNextSim isLifeNextSim) =>
+            World.Query(_query, (ref IsLife isLife, ref IsLifeNextSim isLifeNextSim) =>
             {
-                IsLife.Value = isLifeNextSim.Value;
+                isLife.Value = isLifeNextSim.Value;
             });
         }
     }
