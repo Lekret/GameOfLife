@@ -61,7 +61,8 @@ namespace Systems
             var query = new QueryDescription().WithAll<Renderable>();
             World.Query(query, (ref Renderable renderable) =>
             {
-                Object.Destroy(renderable.Renderer.gameObject);
+                if (renderable.Renderer)
+                    Object.Destroy(renderable.Renderer.gameObject);
             });
         }
     }
