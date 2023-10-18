@@ -25,9 +25,11 @@ namespace Core
                     new InitSystem(_world, Config),
                     new LifeSimulationTriggerSystem(_world, Config),
                     new LifeSimulationSystem(_world, Config),
+                    new MakeLifeSystem(_world),
+                    new KillSystem(_world),
                     new CameraUpdateSystem(_world, Config),
                     new LifeRenderSystem(_world, Config),
-                    new RemoveAllSystem<SimulateGame>(_world),
+                    new RemoveAllSystem<SimulateLife>(_world),
                     new RestartSystem(_world, _systems)
                 );
         }

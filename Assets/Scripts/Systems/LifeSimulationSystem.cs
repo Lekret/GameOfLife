@@ -1,15 +1,16 @@
 ﻿using System;
 using Arch.Core;
+using Arch.Core.Extensions;
 using Components;
 using Config;
 using Core;
-using UnityEngine.Pool;
 
 namespace Systems
 {
     public class LifeSimulationSystem : BaseSystem
     {
-        private readonly QueryDescription _query = new QueryDescription().WithAll<LifeGrid, SimulateGame>();
+        private readonly QueryDescription _simulateQuery = new QueryDescription().WithAll<LifeGrid, SimulateLife>();
+        // private readonly QueryDescription _cellQuery = new QueryDescription().WithAll<Cell, Position, Life>(); TODO
         private readonly GameConfig _config;
 
         public LifeSimulationSystem(World world, GameConfig config) : base(world)
@@ -19,20 +20,18 @@ namespace Systems
 
         public override void Update(in float deltaTime)
         {
-            foreach (var chunk in World.Query(_query))
-            foreach (var entityId in chunk)
+            foreach (var gridChunk in World.Query(_simulateQuery))
+            foreach (var gridEntityId in gridChunk)
             {
-                var lifeGrid = chunk.Get<LifeGrid>(entityId);
+                var lifeGrid = gridChunk.Get<LifeGrid>(gridEntityId);
                 var width = lifeGrid.GetWidth();
                 var height = lifeGrid.GetHeight();
-
-                var delayedSetAlive = ListPool<(int X, int Y, bool IsAlive)>.Get();
-
+                
                 for (var x = 0; x < width; x++)
                 {
-                    for (var y = 0; y < height; y++)
+                    for (var y = 0; y < width; y++)
                     {
-                        var aliveNeighbours = 0;
+                        var lifeNeighbours = 0;
 
                         void Test(ref LifeGrid lg, int xOffset, int yOffset)
                         {
@@ -45,8 +44,8 @@ namespace Systems
                             if (yWithOffset < 0 || yWithOffset >= height)
                                 return;
 
-                            if (lg.IsAlive(xWithOffset, yWithOffset))
-                                aliveNeighbours++;
+                            if (lg.Get(xWithOffset, yWithOffset).Has<Life>())
+                                lifeNeighbours++;
                         }
 
                         Test(ref lifeGrid, 1, 0);
@@ -58,20 +57,22 @@ namespace Systems
                         Test(ref lifeGrid, 1, -1);
                         Test(ref lifeGrid, -1, 1);
 
-                        var isAlive = lifeGrid.IsAlive(x, y);
-                        var testArray =
-                            isAlive ? _config.AliveNeighboursToLive : _config.AliveNeighboursToBecomeAlive;
-                        var shouldBeAlive = Array.IndexOf(testArray, aliveNeighbours) != -1;
-                        delayedSetAlive.Add((x, y, shouldBeAlive));
+                        var cellEntity = lifeGrid.Get(x, y);
+                        var isLife = cellEntity.Has<Life>();
+                        var lifeTestArray = isLife ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
+                        var shouldBeLife = Array.IndexOf(lifeTestArray, lifeNeighbours) != -1;
+                        if (shouldBeLife)
+                        {
+                            if (!isLife)
+                                cellEntity.Add<MakeLife>();
+                        }
+                        else
+                        {
+                            if (isLife)
+                                cellEntity.Add<Kill>();
+                        }
                     }
                 }
-
-                foreach (var delayed in delayedSetAlive)
-                {
-                    lifeGrid.SetAlive(delayed.X, delayed.Y, delayed.IsAlive);
-                }
-
-                ListPool<(int X, int Y, bool IsAlive)>.Release(delayedSetAlive);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Config
 {
@@ -9,9 +10,9 @@ namespace Config
         public bool UseRandom;
         public bool UseSeed;
         public int Seed;
-        [Range(0f, 1f)] public float AliveProbability;
+        [Range(0f, 1f)] public float LifeProbability;
 
         [Header("Predefined")]
-        public Vector2Int[] AliveCells;
+        public Vector2Int[] LifeCells;
     }
 }

@@ -339,8 +339,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66cb040956a84d33b97aab4d52813866, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AliveNeighboursToBecomeAlive: 03000000
-  AliveNeighboursToLive: 0200000003000000
+  LifeNeighboursToBecomeLife: 03000000
+  LifeNeighboursToLive: 0200000003000000
   GridWidth: 30
   GridHeight: 30
   SimulateKey: 32
@@ -350,8 +350,8 @@ MonoBehaviour:
   DrawWidthSpacing: 0
   DrawHeightSpacing: 0
   DrawOrigin: {x: 0.5, y: 0.5, z: 0}
-  AliveMaterial: {fileID: 2100000, guid: d27ca3c692cc30144a4a755688c14484, type: 2}
-  DeadMaterial: {fileID: 2100000, guid: be863f645d7c54342a731341b71e4049, type: 2}
+  LifeMaterial: {fileID: 2100000, guid: d27ca3c692cc30144a4a755688c14484, type: 2}
+  DeathMaterial: {fileID: 2100000, guid: be863f645d7c54342a731341b71e4049, type: 2}
   CellMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   CameraDistance: 37
 --- !u!4 &1878296693

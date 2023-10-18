@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87e2799b634041f6b3d88ff9b09f978d, type: 3}
   m_Name: LinePattern_Loop
   m_EditorClassIdentifier: 
-  AliveCells:
+  UseRandom: 0
+  UseSeed: 0
+  Seed: 0
+  LifeProbability: 0
+  LifeCells:
   - {x: 4, y: 3}
   - {x: 4, y: 4}
   - {x: 4, y: 5}

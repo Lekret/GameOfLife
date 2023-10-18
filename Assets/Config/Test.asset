@@ -15,8 +15,8 @@ MonoBehaviour:
   UseRandom: 1
   UseSeed: 1
   Seed: 25
-  AliveProbability: 0.483
-  AliveCells:
+  LifeProbability: 0.483
+  LifeCells:
   - {x: 4, y: 3}
   - {x: 4, y: 4}
   - {x: 4, y: 5}

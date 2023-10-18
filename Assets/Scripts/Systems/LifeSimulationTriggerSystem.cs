@@ -27,7 +27,7 @@ namespace Systems
                 if (_config.SimulateByKey)
                 {
                     if (Input.GetKeyDown(_config.SimulateKey))
-                        entity.Add<SimulateGame>();
+                        entity.Add<SimulateLife>();
 
                     continue;
                 }
@@ -38,7 +38,7 @@ namespace Systems
                 if (interval <= 0)
                 {
                     interval = _config.SimulationInterval;
-                    entity.Add<SimulateGame>();
+                    entity.Add<SimulateLife>();
                 }
             }
         }

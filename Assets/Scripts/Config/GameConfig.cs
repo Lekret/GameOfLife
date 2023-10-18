@@ -5,8 +5,8 @@ namespace Config
     public class GameConfig : MonoBehaviour
     {
         [Header("Rules")] 
-        public int[] AliveNeighboursToBecomeAlive = {3};
-        public int[] AliveNeighboursToLive = {2, 3};
+        public int[] LifeNeighboursToBecomeLife = {3};
+        public int[] LifeNeighboursToLive = {2, 3};
         public int GridWidth;
         public int GridHeight;
 
@@ -21,8 +21,8 @@ namespace Config
         public float DrawWidthSpacing;
         public float DrawHeightSpacing;
         public Vector3 DrawOrigin = new(0.5f, 0.5f);
-        public Material AliveMaterial;
-        public Material DeadMaterial;
+        public Material LifeMaterial;
+        public Material DeathMaterial;
         public Mesh CellMesh;
         public float CameraDistance = 15;
     }

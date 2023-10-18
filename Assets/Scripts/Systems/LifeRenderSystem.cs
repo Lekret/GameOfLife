@@ -1,4 +1,5 @@
 ﻿using Arch.Core;
+using Arch.Core.Extensions;
 using Components;
 using Config;
 using Core;
@@ -32,8 +33,8 @@ namespace Systems
                 {
                     for (var y = 0; y < height; y++)
                     {
-                        var alive = lifeGrid.IsAlive(x, y);
-                        var material = alive ? _config.AliveMaterial : _config.DeadMaterial;
+                        var isLife = lifeGrid.Get(x, y).Has<Life>();
+                        var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
                         var drawPos = _config.DrawOrigin + new Vector3(
                             x + _config.DrawWidthSpacing * x,
                             y + _config.DrawHeightSpacing * y);

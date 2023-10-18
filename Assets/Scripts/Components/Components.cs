@@ -1,27 +1,55 @@
-﻿namespace Components
+﻿using Arch.Core;
+using Arch.Core.Extensions;
+
+namespace Components
 {
+    public struct Cell
+    {
+    }
+
+    public struct Life
+    {
+    }
+
+    public struct MakeLife
+    {
+    }
+
+    public struct Kill
+    {
+    }
+
+    public struct Position
+    {
+        public int X;
+        public int Y;
+    }
+
     public struct SimulationInterval
     {
         public float Value;
     }
 
-    public struct SimulateGame
+    public struct SimulateLife
     {
     }
 
     public struct LifeGrid
     {
-        public bool[,] Value;
+        public Entity[,] Value;
 
         public int GetWidth() => Value.GetUpperBound(0) + 1;
-        
+
         public int GetHeight() => Value.GetUpperBound(1) + 1;
 
-        public bool IsAlive(int x, int y) => Value[x, y];
-
-        public void SetAlive(int x, int y, bool alive)
+        public Entity Get(int x, int y) => Value[x, y];
+        
+        public void SetIsLife(int x, int y, bool isLife)
         {
-            Value[x, y] = alive;
+            if (isLife)
+                Value[x, y].Add<Life>();
+            else
+                Value[x, y].Remove<Life>();
         }
     }
 }
