@@ -21,9 +21,9 @@ namespace Systems
         public override void Update(in float deltaTime)
         {
             foreach (var chunk in World.Query(_query))
-            foreach (var entityId in chunk)
+            foreach (var entityIdx in chunk)
             {
-                var lifeGrid = chunk.Get<LifeGrid>(entityId);
+                var lifeGrid = chunk.Get<LifeGrid>(entityIdx);
                 var width = lifeGrid.Width;
                 var height = lifeGrid.Height;
                 var cameraPosition = new Vector3

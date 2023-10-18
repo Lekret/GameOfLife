@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.Core.Extensions;
 using Components;
@@ -27,25 +28,31 @@ namespace Systems
             foreach (var _ in gridChunk)
             {
                 foreach (var cellChunk in World.Query(_cellQuery))
-                foreach (var cellEntityId in cellChunk)
                 {
-                    var neighbours = cellChunk.Get<Neighbours>(cellEntityId);
-                    var isLife = cellChunk.Get<IsLife>(cellEntityId).Value;
-                    ref var isLifeNextSim = ref cellChunk.Get<IsLifeNextSim>(cellEntityId).Value;
-                    var lifeNeighbours = 0;
+                    var neighboursArr = cellChunk.GetSpan<Neighbours>();
+                    var isLifeArr = cellChunk.GetSpan<IsLife>();
+                    var isLifeNextSimArr = cellChunk.GetSpan<IsLifeNextSim>();
+                    
+                    foreach (var cellEntityIdx in cellChunk)
+                    {
+                        var neighbours = neighboursArr[cellEntityIdx];
+                        var isLife = isLifeArr[cellEntityIdx].Value;
+                        ref var isLifeNextSim = ref isLifeNextSimArr[cellEntityIdx].Value;
+                        var lifeNeighbours = 0;
 
-                    bool CheckNeighbour(Entity entity) => entity != Entity.Null && entity.Get<IsLife>().Value;
-                    if (CheckNeighbour(neighbours.N)) lifeNeighbours++;
-                    if (CheckNeighbour(neighbours.NE)) lifeNeighbours++;
-                    if (CheckNeighbour(neighbours.E)) lifeNeighbours++;
-                    if (CheckNeighbour(neighbours.SE)) lifeNeighbours++;
-                    if (CheckNeighbour(neighbours.S)) lifeNeighbours++;
-                    if (CheckNeighbour(neighbours.SW)) lifeNeighbours++;
-                    if (CheckNeighbour(neighbours.W)) lifeNeighbours++;
-                    if (CheckNeighbour(neighbours.NW)) lifeNeighbours++;
-
-                    var lifeTestArray = isLife ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
-                    isLifeNextSim = Array.IndexOf(lifeTestArray, lifeNeighbours) != -1;
+                        bool CheckNeighbour(ref Entity entity) => entity != Entity.Null && World.Get<IsLife>(entity).Value;
+                        if (CheckNeighbour(ref neighbours.N)) lifeNeighbours++;
+                        if (CheckNeighbour(ref neighbours.NE)) lifeNeighbours++;
+                        if (CheckNeighbour(ref neighbours.E)) lifeNeighbours++;
+                        if (CheckNeighbour(ref neighbours.SE)) lifeNeighbours++;
+                        if (CheckNeighbour(ref neighbours.S)) lifeNeighbours++;
+                        if (CheckNeighbour(ref neighbours.SW)) lifeNeighbours++;
+                        if (CheckNeighbour(ref neighbours.W)) lifeNeighbours++;
+                        if (CheckNeighbour(ref neighbours.NW)) lifeNeighbours++;
+                        
+                        var lifeTestArray = isLife ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
+                        isLifeNextSim = Array.IndexOf(lifeTestArray, lifeNeighbours) != -1;
+                    }
                 }
             }
         }

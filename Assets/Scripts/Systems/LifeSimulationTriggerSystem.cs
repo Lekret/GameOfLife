@@ -20,9 +20,9 @@ namespace Systems
         public override void Update(in float deltaTime)
         {
             foreach (var chunk in World.Query(_query))
-            foreach (var entityId in chunk)
+            foreach (var entityIdx in chunk)
             {
-                var entity = chunk.Entity(entityId);
+                var entity = chunk.Entity(entityIdx);
 
                 if (_config.SimulateByKey)
                 {
@@ -32,7 +32,7 @@ namespace Systems
                     continue;
                 }
 
-                ref var interval = ref chunk.Get<SimulationInterval>(entityId).Value;
+                ref var interval = ref chunk.Get<SimulationInterval>(entityIdx).Value;
                 interval -= deltaTime;
 
                 if (interval <= 0)

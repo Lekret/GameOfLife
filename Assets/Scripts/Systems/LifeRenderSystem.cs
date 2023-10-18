@@ -23,13 +23,13 @@ namespace Systems
             _graphicsEngine.Clear();
             
             foreach (var chunk in World.Query(_query))
-            foreach (var entityId in chunk)
+            foreach (var entityIdx in chunk)
             {
-                var position = chunk.Get<Position>(entityId);
+                var position = chunk.Get<Position>(entityIdx);
                 var x = position.X;
                 var y = position.Y;
 
-                var isLife = chunk.Get<IsLife>(entityId).Value;
+                var isLife = chunk.Get<IsLife>(entityIdx).Value;
                 var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
                 var drawPos = _config.DrawOrigin + new Vector3(
                     x + _config.DrawWidthSpacing * x,

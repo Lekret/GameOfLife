@@ -13,9 +13,9 @@ namespace Core
         {
             foreach (var chunks in world.Query(query))
             {
-                foreach (var entityId in chunks)
+                foreach (var entityIdx in chunks)
                 {
-                    return chunks.Entity(entityId);
+                    return chunks.Entity(entityIdx);
                 }
 
                 break;
