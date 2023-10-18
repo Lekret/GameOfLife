@@ -29,18 +29,18 @@ namespace Systems
             {
                 foreach (var cellChunk in World.Query(_cellQuery))
                 {
-                    var neighboursArr = cellChunk.GetSpan<Neighbours>();
-                    var isLifeArr = cellChunk.GetSpan<IsLife>();
-                    var isLifeNextSimArr = cellChunk.GetSpan<IsLifeNextSim>();
+                    var neighboursArr = cellChunk.GetArray<Neighbours>();
+                    var isLifeArr = cellChunk.GetArray<IsLife>();
+                    var isLifeNextSimArr = cellChunk.GetArray<IsLifeNextSim>();
                     
                     foreach (var cellEntityIdx in cellChunk)
                     {
-                        var neighbours = neighboursArr[cellEntityIdx];
-                        var isLife = isLifeArr[cellEntityIdx].Value;
+                        ref var neighbours = ref neighboursArr[cellEntityIdx];
+                        ref var isLife = ref isLifeArr[cellEntityIdx].Value;
                         ref var isLifeNextSim = ref isLifeNextSimArr[cellEntityIdx].Value;
                         var lifeNeighbours = 0;
-
-                        bool CheckNeighbour(ref Entity entity) => entity != Entity.Null && World.Get<IsLife>(entity).Value;
+                        
+                        bool CheckNeighbour(ref Entity entity) => World.Get<IsLife>(entity).Value;
                         if (CheckNeighbour(ref neighbours.N)) lifeNeighbours++;
                         if (CheckNeighbour(ref neighbours.NE)) lifeNeighbours++;
                         if (CheckNeighbour(ref neighbours.E)) lifeNeighbours++;
