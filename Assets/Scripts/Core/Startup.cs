@@ -1,8 +1,10 @@
-﻿using Arch.Core;
+﻿using System;
+using Arch.Core;
 using Arch.System;
 using Components;
 using Config;
 using Systems;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Core
@@ -17,14 +19,16 @@ namespace Core
         private void Awake()
         {
             _world = World.Create();
-            _systems = new Group<float>()
+            _systems = new Group<float>();
+            _systems
                 .Add(
                     new InitSystem(_world, Config),
                     new LifeSimulationTriggerSystem(_world, Config),
                     new LifeSimulationSystem(_world, Config),
                     new CameraUpdateSystem(_world, Config),
                     new LifeRenderSystem(_world, Config),
-                    new RemoveAllSystem<SimulateGame>(_world)
+                    new RemoveAllSystem<SimulateGame>(_world),
+                    new RestartSystem(_world, _systems)
                 );
         }
 
@@ -35,17 +39,16 @@ namespace Core
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                _world.Clear();
-                _systems.Initialize();
-                return;
-            }
-
             var deltaTime = Time.deltaTime;
             _systems.BeforeUpdate(deltaTime);
             _systems.Update(deltaTime);
             _systems.AfterUpdate(deltaTime);
+        }
+
+        private void OnDestroy()
+        {
+            _systems.Dispose();
+            _world.Dispose();
         }
     }
 }
