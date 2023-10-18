@@ -3,25 +3,25 @@ using Arch.Core;
 using Arch.Core.Extensions;
 using Components;
 
-public static class GameOfLifeUtils
+public static class EcsUtils
 {
-    private static readonly QueryDescription GlobalEntityQuery = new QueryDescription().WithAll<GameData, GlobalEntity>();
-
-    public static GameData GetGameData(this World world)
+    public static bool Any(this World world, in QueryDescription query)
     {
-        return world.GetGlobalEntity().Get<GameData>();
+        return world.GetSingle(query) != Entity.Null;
     }
 
-    public static Entity GetGlobalEntity(this World world)
+    public static Entity GetSingle(this World world, in QueryDescription query)
     {
-        foreach (var chunk in world.Query(GlobalEntityQuery))
-        {                
-            foreach (var entityId in chunk)
+        foreach (var chunks in world.Query(query))
+        {
+            foreach (var entity in chunks)
             {
-                return chunk.Entity(entityId);
+                return chunks.Entity(entity);
             }
+
+            break;
         }
 
-        throw new Exception("Global Entity not found");
+        return Entity.Null;
     }
 }

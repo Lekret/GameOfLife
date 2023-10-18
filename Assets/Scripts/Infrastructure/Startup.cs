@@ -10,31 +10,26 @@ namespace Infrastructure
     {
         public GameConfig Config;
 
-        private Group<float> _group;
+        private Group<float> _systems;
         private World _world;
 
         private void Awake()
         {
             _world = World.Create();
-            InitWorld();
-            _group = new Group<float>()
-                .Add(new InitSystem(_world),
-                    new LifeSimulationTriggerSystem(_world),
-                    new LifeSimulationSystem(_world),
-                    new CameraUpdateSystem(_world),
-                    new RenderLifeSystem(_world),
+            _systems = new Group<float>()
+                .Add(
+                    new InitSystem(_world, Config),
+                    new LifeSimulationTriggerSystem(_world, Config),
+                    new LifeSimulationSystem(_world, Config),
+                    new CameraUpdateSystem(_world, Config),
+                    new LifeRenderSystem(_world, Config),
                     new RemoveAllSystem<SimulateGame>(_world)
                 );
         }
 
-        private void InitWorld()
-        {
-            _world.Create(new GlobalEntity(), new GameData(Config));
-        }
-
         private void Start()
         {
-            _group.Initialize();
+            _systems.Initialize();
         }
 
         private void Update()
@@ -42,15 +37,14 @@ namespace Infrastructure
             if (Input.GetKeyDown(KeyCode.R))
             {
                 _world.Clear();
-                InitWorld();
-                _group.Initialize();
+                _systems.Initialize();
                 return;
             }
 
             var deltaTime = Time.deltaTime;
-            _group.BeforeUpdate(deltaTime);
-            _group.Update(deltaTime);
-            _group.AfterUpdate(deltaTime);
+            _systems.BeforeUpdate(deltaTime);
+            _systems.Update(deltaTime);
+            _systems.AfterUpdate(deltaTime);
         }
     }
 }

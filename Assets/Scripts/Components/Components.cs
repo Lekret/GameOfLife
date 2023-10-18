@@ -1,12 +1,8 @@
 ﻿namespace Components
 {
-    public struct GameInterval
+    public struct SimulationInterval
     {
         public float Value;
-    }
-
-    public struct GlobalEntity
-    {
     }
 
     public struct SimulateGame
