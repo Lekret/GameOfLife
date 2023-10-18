@@ -18,6 +18,7 @@ namespace Systems
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
+                _systems.Dispose();
                 World.Clear();
                 _systems.Initialize();
             }
