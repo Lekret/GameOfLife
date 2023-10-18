@@ -8,11 +8,12 @@ namespace Systems
     {
         private readonly QueryDescription _query = new QueryDescription().WithAll<LifeGrid>();
         private readonly GameConfig _config;
-        private ForEach<LifeGrid> _forEach;
+        private readonly Camera _camera;
 
         public CameraUpdateSystem(World world, GameConfig config) : base(world)
         {
             _config = config;
+            _camera = Camera.main;
         }
 
         public override void Update(in float deltaTime)
@@ -29,7 +30,7 @@ namespace Systems
                     height / 2f + _config.DrawHeightSpacing * (height / 2f),
                     -_config.CameraDistance
                 );
-                Camera.main.transform.position = cameraPosition;
+                _camera.transform.position = cameraPosition;
             }
         }
     }
