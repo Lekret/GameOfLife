@@ -1,6 +1,9 @@
 ﻿using Arch.Core;
 using Components;
+using Config;
+using Core;
 using UnityEngine;
+using View;
 
 namespace Systems
 {

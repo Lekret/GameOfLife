@@ -1,6 +1,8 @@
 ﻿using System;
 using Arch.Core;
 using Components;
+using Config;
+using Core;
 using UnityEngine.Pool;
 
 namespace Systems

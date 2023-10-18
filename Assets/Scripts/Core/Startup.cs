@@ -1,10 +1,11 @@
 ﻿using Arch.Core;
 using Arch.System;
 using Components;
+using Config;
 using Systems;
 using UnityEngine;
 
-namespace Infrastructure
+namespace Core
 {
     public class Startup : MonoBehaviour
     {

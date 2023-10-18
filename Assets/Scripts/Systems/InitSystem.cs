@@ -1,5 +1,7 @@
 ﻿using Arch.Core;
 using Components;
+using Config;
+using Core;
 using UnityEngine;
 
 namespace Systems

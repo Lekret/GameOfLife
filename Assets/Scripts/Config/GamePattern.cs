@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Components
+namespace Config
 {
     [CreateAssetMenu(menuName = "Config/GamePattern", fileName = "GamePattern")]
     public class GamePattern : ScriptableObject
