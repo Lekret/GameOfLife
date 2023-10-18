@@ -1,9 +1,4 @@
-﻿using System;
-using Arch.Core;
-using Arch.Core.Extensions;
-using UnityEngine;
-
-namespace GameOfLife.Components
+﻿namespace Components
 {
     public class GameData
     {

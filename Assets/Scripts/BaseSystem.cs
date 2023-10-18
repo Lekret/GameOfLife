@@ -22,4 +22,8 @@ public class BaseSystem : BaseSystem<World, float>
     public override void AfterUpdate(in float deltaTime)
     {
     }
+
+    public override void Dispose()
+    {
+    }
 }

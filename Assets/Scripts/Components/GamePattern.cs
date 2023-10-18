@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace GameOfLife.Components
+namespace Components
 {
     [CreateAssetMenu(menuName = "Config/GamePattern", fileName = "GamePattern")]
     public class GamePattern : ScriptableObject

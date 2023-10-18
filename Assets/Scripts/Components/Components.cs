@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace GameOfLife.Components
+﻿namespace Components
 {
     public struct GameInterval
     {

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace GameOfLife.Components
+namespace Components
 {
     public class GameConfig : MonoBehaviour
     {
