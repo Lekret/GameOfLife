@@ -1,5 +1,4 @@
 ﻿using Arch.Core;
-using Arch.System;
 using Components;
 using UnityEngine;
 
@@ -9,7 +8,8 @@ namespace Systems
     {
         private readonly QueryDescription _query = new QueryDescription().WithAll<LifeGrid>();
         private readonly GameConfig _config;
-        
+        private ForEach<LifeGrid> _forEach;
+
         public CameraUpdateSystem(World world, GameConfig config) : base(world)
         {
             _config = config;
@@ -17,8 +17,10 @@ namespace Systems
 
         public override void Update(in float deltaTime)
         {
-            World.Query(_query, (ref LifeGrid lifeGrid) =>
+            foreach (var chunk in World.Query(_query))
+            foreach (var entityId in chunk)
             {
+                var lifeGrid = chunk.Get<LifeGrid>(entityId);
                 var width = lifeGrid.GetWidth();
                 var height = lifeGrid.GetHeight();
                 var cameraPosition = new Vector3
@@ -28,7 +30,7 @@ namespace Systems
                     -_config.CameraDistance
                 );
                 Camera.main.transform.position = cameraPosition;
-            });
+            }
         }
     }
 }

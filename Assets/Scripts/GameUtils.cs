@@ -14,9 +14,9 @@ public static class EcsUtils
     {
         foreach (var chunks in world.Query(query))
         {
-            foreach (var entity in chunks)
+            foreach (var entityId in chunks)
             {
-                return chunks.Entity(entity);
+                return chunks.Entity(entityId);
             }
 
             break;

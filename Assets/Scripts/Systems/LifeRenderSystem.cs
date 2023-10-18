@@ -1,5 +1,4 @@
 ﻿using Arch.Core;
-using Arch.System;
 using Components;
 using UnityEngine;
 
@@ -18,8 +17,10 @@ namespace Systems
 
         public override void Update(in float deltaTime)
         {
-            World.Query(_query, (ref LifeGrid lifeGrid) =>
+            foreach (var chunk in World.Query(_query))
+            foreach (var entityId in chunk)
             {
+                var lifeGrid = chunk.Get<LifeGrid>(entityId);
                 var width = lifeGrid.GetWidth();
                 var height = lifeGrid.GetHeight();
 
@@ -36,7 +37,7 @@ namespace Systems
                         _graphicsEngine.DrawMesh(drawPos, _config.CellMesh, material);
                     }
                 }
-            });
+            }
         }
     }
 }
