@@ -9,8 +9,11 @@ namespace Systems
 {
     public class LifeSimulationSystem : BaseSystem
     {
-        private readonly QueryDescription _simulateQuery = new QueryDescription().WithAll<LifeGrid, SimulateLife>();
-        // private readonly QueryDescription _cellQuery = new QueryDescription().WithAll<Cell, Position, Life>(); TODO
+        private readonly QueryDescription _simulateQuery = new QueryDescription().WithAll<SimulateLife>();
+
+        private readonly QueryDescription _cellQuery =
+            new QueryDescription().WithAll<Cell, Position, Neighbours, IsLife, IsLifeNextSim>();
+
         private readonly GameConfig _config;
 
         public LifeSimulationSystem(World world, GameConfig config) : base(world)
@@ -21,48 +24,28 @@ namespace Systems
         public override void Update(in float deltaTime)
         {
             foreach (var gridChunk in World.Query(_simulateQuery))
-            foreach (var gridEntityId in gridChunk)
+            foreach (var _ in gridChunk)
             {
-                var lifeGrid = gridChunk.Get<LifeGrid>(gridEntityId);
-                var width = lifeGrid.GetWidth();
-                var height = lifeGrid.GetHeight();
-                
-                for (var x = 0; x < width; x++)
+                foreach (var cellChunk in World.Query(_cellQuery))
+                foreach (var cellEntityId in cellChunk)
                 {
-                    for (var y = 0; y < width; y++)
-                    {
-                        var lifeNeighbours = 0;
+                    var neighbours = cellChunk.Get<Neighbours>(cellEntityId);
+                    var isLife = cellChunk.Get<IsLife>(cellEntityId).Value;
+                    ref var isLifeNextSim = ref cellChunk.Get<IsLifeNextSim>(cellEntityId).Value;
+                    var lifeNeighbours = 0;
 
-                        void Test(ref LifeGrid lg, int xOffset, int yOffset)
-                        {
-                            var xWithOffset = x + xOffset;
-                            var yWithOffset = y + yOffset;
+                    bool CheckNeighbour(Entity entity) => entity != Entity.Null && entity.Get<IsLife>().Value;
+                    if (CheckNeighbour(neighbours.N)) lifeNeighbours++;
+                    if (CheckNeighbour(neighbours.NE)) lifeNeighbours++;
+                    if (CheckNeighbour(neighbours.E)) lifeNeighbours++;
+                    if (CheckNeighbour(neighbours.SE)) lifeNeighbours++;
+                    if (CheckNeighbour(neighbours.S)) lifeNeighbours++;
+                    if (CheckNeighbour(neighbours.SW)) lifeNeighbours++;
+                    if (CheckNeighbour(neighbours.W)) lifeNeighbours++;
+                    if (CheckNeighbour(neighbours.NW)) lifeNeighbours++;
 
-                            if (xWithOffset < 0 || xWithOffset >= width)
-                                return;
-
-                            if (yWithOffset < 0 || yWithOffset >= height)
-                                return;
-
-                            if (lg.Get(xWithOffset, yWithOffset).Get<IsLife>().Value)
-                                lifeNeighbours++;
-                        }
-
-                        Test(ref lifeGrid, 1, 0);
-                        Test(ref lifeGrid, -1, 0);
-                        Test(ref lifeGrid, 0, 1);
-                        Test(ref lifeGrid, 0, -1);
-                        Test(ref lifeGrid, 1, 1);
-                        Test(ref lifeGrid, -1, -1);
-                        Test(ref lifeGrid, 1, -1);
-                        Test(ref lifeGrid, -1, 1);
-
-                        var cellEntity = lifeGrid.Get(x, y);
-                        var isLife = cellEntity.Get<IsLife>().Value;
-                        var lifeTestArray = isLife ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
-                        var isLifeNextSim = Array.IndexOf(lifeTestArray, lifeNeighbours) != -1;
-                        cellEntity.Get<IsLifeNextSim>().Value = isLifeNextSim;
-                    }
+                    var lifeTestArray = isLife ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
+                    isLifeNextSim = Array.IndexOf(lifeTestArray, lifeNeighbours) != -1;
                 }
             }
         }

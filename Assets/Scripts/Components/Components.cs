@@ -1,5 +1,4 @@
 ﻿using Arch.Core;
-using Arch.Core.Extensions;
 
 namespace Components
 {
@@ -7,6 +6,18 @@ namespace Components
     {
     }
 
+    public struct Neighbours
+    {
+        public Entity N;
+        public Entity NE;
+        public Entity E;
+        public Entity SE;
+        public Entity S;
+        public Entity SW;
+        public Entity W;
+        public Entity NW;
+    }
+    
     public struct IsLife
     {
         public bool Value;
@@ -34,12 +45,7 @@ namespace Components
 
     public struct LifeGrid
     {
-        public Entity[,] Value;
-
-        public int GetWidth() => Value.GetUpperBound(0) + 1;
-
-        public int GetHeight() => Value.GetUpperBound(1) + 1;
-
-        public Entity Get(int x, int y) => Value[x, y];
+        public int Width;
+        public int Height;
     }
 }

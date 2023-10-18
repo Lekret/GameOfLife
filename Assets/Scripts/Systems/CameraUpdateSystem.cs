@@ -24,8 +24,8 @@ namespace Systems
             foreach (var entityId in chunk)
             {
                 var lifeGrid = chunk.Get<LifeGrid>(entityId);
-                var width = lifeGrid.GetWidth();
-                var height = lifeGrid.GetHeight();
+                var width = lifeGrid.Width;
+                var height = lifeGrid.Height;
                 var cameraPosition = new Vector3
                 (
                     width / 2f + _config.DrawWidthSpacing * (width / 2f),

@@ -1,5 +1,4 @@
 ﻿using Arch.Core;
-using Arch.Core.Extensions;
 using Components;
 using Config;
 using Core;
@@ -10,7 +9,7 @@ namespace Systems
 {
     public class LifeRenderSystem : BaseSystem
     {
-        private readonly QueryDescription _query = new QueryDescription().WithAll<LifeGrid>();
+        private readonly QueryDescription _query = new QueryDescription().WithAll<Cell, Position>();
         private readonly GraphicsEngine _graphicsEngine = new();
         private readonly GameConfig _config;
 
@@ -21,26 +20,21 @@ namespace Systems
 
         public override void Update(in float deltaTime)
         {
+            _graphicsEngine.Clear();
+            
             foreach (var chunk in World.Query(_query))
             foreach (var entityId in chunk)
             {
-                var lifeGrid = chunk.Get<LifeGrid>(entityId);
-                var width = lifeGrid.GetWidth();
-                var height = lifeGrid.GetHeight();
+                var position = chunk.Get<Position>(entityId);
+                var x = position.X;
+                var y = position.Y;
 
-                _graphicsEngine.Clear();
-                for (var x = 0; x < width; x++)
-                {
-                    for (var y = 0; y < height; y++)
-                    {
-                        var isLife = lifeGrid.Get(x, y).Get<IsLife>().Value;
-                        var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
-                        var drawPos = _config.DrawOrigin + new Vector3(
-                            x + _config.DrawWidthSpacing * x,
-                            y + _config.DrawHeightSpacing * y);
-                        _graphicsEngine.DrawMesh(drawPos, _config.CellMesh, material);
-                    }
-                }
+                var isLife = chunk.Get<IsLife>(entityId).Value;
+                var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
+                var drawPos = _config.DrawOrigin + new Vector3(
+                    x + _config.DrawWidthSpacing * x,
+                    y + _config.DrawHeightSpacing * y);
+                _graphicsEngine.DrawMesh(drawPos, _config.CellMesh, material);
             }
         }
     }
