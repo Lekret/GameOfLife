@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace View
 {
+    public struct Renderable
+    {
+        public Transform Transform;
+        public MeshRenderer Renderer;
+        public MeshFilter Filter;
+    }
+    
     public class GraphicsEngine
     {
-        private struct Renderable
-        {
-            public Transform Transform;
-            public MeshRenderer Renderer;
-            public MeshFilter Filter;
-        }
-        
         private readonly Queue<Renderable> _visibleObjects = new();
         private readonly Queue<Renderable> _pooledObjects = new();
         private Transform _parent;
@@ -24,14 +24,14 @@ namespace View
         }
         
         public void Clear()
-        {
+        {            
             while (_visibleObjects.TryDequeue(out var renderable))
             {
                 renderable.Renderer.enabled = false;
                 _pooledObjects.Enqueue(renderable);
             }
         }
-        
+
         public void DrawMesh(Vector3 position, Mesh mesh, Material material)
         {
             if (!_pooledObjects.TryDequeue(out var renderable))

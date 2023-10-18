@@ -44,7 +44,7 @@ namespace Systems
                             if (yWithOffset < 0 || yWithOffset >= height)
                                 return;
 
-                            if (lg.Get(xWithOffset, yWithOffset).Has<Life>())
+                            if (lg.Get(xWithOffset, yWithOffset).Get<IsLife>().Value)
                                 lifeNeighbours++;
                         }
 
@@ -58,19 +58,10 @@ namespace Systems
                         Test(ref lifeGrid, -1, 1);
 
                         var cellEntity = lifeGrid.Get(x, y);
-                        var isLife = cellEntity.Has<Life>();
+                        var isLife = cellEntity.Get<IsLife>().Value;
                         var lifeTestArray = isLife ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
-                        var shouldBeLife = Array.IndexOf(lifeTestArray, lifeNeighbours) != -1;
-                        if (shouldBeLife)
-                        {
-                            if (!isLife)
-                                cellEntity.Add<MakeLife>();
-                        }
-                        else
-                        {
-                            if (isLife)
-                                cellEntity.Add<Kill>();
-                        }
+                        var isLifeNextSim = Array.IndexOf(lifeTestArray, lifeNeighbours) != -1;
+                        cellEntity.Get<IsLifeNextSim>().Value = isLifeNextSim;
                     }
                 }
             }

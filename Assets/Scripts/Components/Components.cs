@@ -7,18 +7,16 @@ namespace Components
     {
     }
 
-    public struct Life
+    public struct IsLife
     {
+        public bool Value;
     }
 
-    public struct MakeLife
+    public struct IsLifeNextSim
     {
+        public bool Value;
     }
-
-    public struct Kill
-    {
-    }
-
+    
     public struct Position
     {
         public int X;
@@ -43,13 +41,5 @@ namespace Components
         public int GetHeight() => Value.GetUpperBound(1) + 1;
 
         public Entity Get(int x, int y) => Value[x, y];
-        
-        public void SetIsLife(int x, int y, bool isLife)
-        {
-            if (isLife)
-                Value[x, y].Add<Life>();
-            else
-                Value[x, y].Remove<Life>();
-        }
     }
 }

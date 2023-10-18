@@ -33,7 +33,7 @@ namespace Systems
                 {
                     for (var y = 0; y < height; y++)
                     {
-                        var isLife = lifeGrid.Get(x, y).Has<Life>();
+                        var isLife = lifeGrid.Get(x, y).Get<IsLife>().Value;
                         var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
                         var drawPos = _config.DrawOrigin + new Vector3(
                             x + _config.DrawWidthSpacing * x,

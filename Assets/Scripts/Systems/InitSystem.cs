@@ -33,7 +33,9 @@ namespace Systems
                 {
                     lifeGrid.Value[x, y] = World.Create(
                         new Cell(),
-                        new Position {X = x, Y = y}
+                        new Position {X = x, Y = y},
+                        new IsLife {Value = false},
+                        new IsLifeNextSim {Value = false}
                     );
                 }
             }
@@ -48,14 +50,19 @@ namespace Systems
                 foreach (var entity in lifeGrid.Value)
                 {
                     if (startPattern.LifeProbability > Random.Range(0f, 1f))
-                        entity.Add<Life>();
+                    {
+                        entity.Get<IsLife>().Value = true;
+                        entity.Get<IsLifeNextSim>().Value = true;
+                    }
                 }
             }
             else
             {
                 foreach (var lifeCell in startPattern.LifeCells)
                 {
-                    lifeGrid.SetIsLife(lifeCell.x, lifeCell.y, true);
+                    var entity = lifeGrid.Get(lifeCell.x, lifeCell.y);
+                    entity.Get<IsLife>().Value = true;
+                    entity.Get<IsLifeNextSim>().Value = true;
                 }
             }
         }
