@@ -14,7 +14,6 @@ namespace Config
         public KeyCode SimulateKey = KeyCode.Space;
         public bool SimulateByKey;
         public float SimulationInterval;
-
         public GamePattern StartPattern;
         
         [Header("Graphics")] 

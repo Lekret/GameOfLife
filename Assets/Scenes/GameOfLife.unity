@@ -346,7 +346,7 @@ MonoBehaviour:
   SimulateKey: 32
   SimulateByKey: 0
   SimulationInterval: 0.1
-  StartPattern: {fileID: 11400000, guid: 9d124cd13a8d7a94c8b2668a1cd7dd7f, type: 2}
+  StartPattern: {fileID: 11400000, guid: 551040eee5a32b34ba3744bc1fb9c5db, type: 2}
   DrawWidthSpacing: 0
   DrawHeightSpacing: 0
   DrawOrigin: {x: 0.5, y: 0.5, z: 0}
