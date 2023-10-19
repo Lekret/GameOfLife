@@ -48,8 +48,8 @@ namespace PureImpl
         Three = 1 << 2,
         Four = 1 << 3,
         Five = 1 << 4,
-        Seven = 1 << 5,
-        Eight = 1 << 6,
-        Nine = 1 << 7,
+        Six = 1 << 5,
+        Seven = 1 << 6,
+        Eight = 1 << 7,
     }
 }
