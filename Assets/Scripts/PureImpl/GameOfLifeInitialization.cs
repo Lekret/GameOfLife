@@ -5,27 +5,6 @@ namespace PureImpl
 {
     public static class GameOfLifeInitialization
     {
-        private static void InitNeighbour(
-            int posX,
-            int posY,
-            int offsetX,
-            int offsetY,
-            ref Cell neighbourSlot,
-            Cell[,] grid,
-            int gridWidth,
-            int gridHeight)
-        {
-            var testX = posX + offsetX;
-            var testY = posY + offsetY;
-            if (testX < 0 || testX >= gridWidth)
-                return;
-
-            if (testY < 0 || testY >= gridHeight)
-                return;
-
-            neighbourSlot = grid[testX, testY];
-        }
-        
         public static GameInstance CreateInstance(GameConfig config)
         {
             var instance = new GameInstance
@@ -52,21 +31,7 @@ namespace PureImpl
                 }
             }
             
-            foreach (var cell in tempCellGrid)
-            {
-                ref var neighbours = ref cell.Neighbours;
-                var position = cell.Position;
-                var x = position.x;
-                var y = position.y;
-                InitNeighbour(x, y, 0, 1, ref neighbours.N, tempCellGrid, width, height);
-                InitNeighbour(x, y, 1, 1, ref neighbours.NE, tempCellGrid, width, height);
-                InitNeighbour(x, y, 1, 0, ref neighbours.E, tempCellGrid, width, height);
-                InitNeighbour(x, y, 1, -1, ref neighbours.SE, tempCellGrid, width, height);
-                InitNeighbour(x, y, 0, -1, ref neighbours.S, tempCellGrid, width, height);
-                InitNeighbour(x, y, -1, -1, ref neighbours.SW, tempCellGrid, width, height);
-                InitNeighbour(x, y, -1, 0, ref neighbours.W, tempCellGrid, width, height);
-                InitNeighbour(x, y, -1, 1, ref neighbours.NW, tempCellGrid, width, height);
-            }
+            InitNeighbours(tempCellGrid, width, height);
 
             var startPattern = config.StartPattern;
             if (startPattern.UseRandom)
@@ -95,6 +60,46 @@ namespace PureImpl
             }
 
             return instance;
+        }
+
+        private static void InitNeighbours(Cell[,] tempCellGrid, int gridWidth, int gridHeight)
+        {
+            foreach (var cell in tempCellGrid)
+            {
+                ref var neighbours = ref cell.Neighbours;
+                var position = cell.Position;
+                var x = position.x;
+                var y = position.y;
+                InitNeighbour(x, y, 0, 1, ref neighbours.N, tempCellGrid, gridWidth, gridHeight);
+                InitNeighbour(x, y, 1, 1, ref neighbours.NE, tempCellGrid, gridWidth, gridHeight);
+                InitNeighbour(x, y, 1, 0, ref neighbours.E, tempCellGrid, gridWidth, gridHeight);
+                InitNeighbour(x, y, 1, -1, ref neighbours.SE, tempCellGrid, gridWidth, gridHeight);
+                InitNeighbour(x, y, 0, -1, ref neighbours.S, tempCellGrid, gridWidth, gridHeight);
+                InitNeighbour(x, y, -1, -1, ref neighbours.SW, tempCellGrid, gridWidth, gridHeight);
+                InitNeighbour(x, y, -1, 0, ref neighbours.W, tempCellGrid, gridWidth, gridHeight);
+                InitNeighbour(x, y, -1, 1, ref neighbours.NW, tempCellGrid, gridWidth, gridHeight);
+            }
+        }
+
+        private static void InitNeighbour(
+            int posX,
+            int posY,
+            int offsetX,
+            int offsetY,
+            ref Cell neighbourSlot,
+            Cell[,] grid,
+            int gridWidth,
+            int gridHeight)
+        {
+            var testX = posX + offsetX;
+            var testY = posY + offsetY;
+            if (testX < 0 || testX >= gridWidth)
+                return;
+
+            if (testY < 0 || testY >= gridHeight)
+                return;
+
+            neighbourSlot = grid[testX, testY];
         }
     }
 }
