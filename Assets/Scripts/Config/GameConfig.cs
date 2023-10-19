@@ -1,12 +1,13 @@
-﻿using UnityEngine;
+﻿using PureImpl;
+using UnityEngine;
 
 namespace Config
 {
     public class GameConfig : MonoBehaviour
     {
         [Header("Rules")] 
-        public int[] LifeNeighboursToBecomeLife = {3};
-        public int[] LifeNeighboursToLive = {2, 3};
+        public NeighbourFlags LifeNeighboursToBecomeLife = NeighbourFlags.Three;
+        public NeighbourFlags LifeNeighboursToLive = NeighbourFlags.Two | NeighbourFlags.Three;
         public int GridWidth;
         public int GridHeight;
 
