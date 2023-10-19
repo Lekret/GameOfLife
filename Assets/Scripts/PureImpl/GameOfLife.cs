@@ -52,6 +52,7 @@ namespace PureImpl
         {
             if (ShouldTriggerSimulation())
             {
+                ApplyLifeNextSim();
                 SimulateCells();
                 UpdateCellGraphics();
             }
@@ -61,6 +62,14 @@ namespace PureImpl
             if (Input.GetKeyDown(_restartKey))
             {
                 RecreateGame();
+            }
+        }
+
+        private void ApplyLifeNextSim()
+        {
+            foreach (var cell in _instance.Cells)
+            {
+                cell.IsLife = cell.IsLifeNextSim;
             }
         }
 
@@ -81,8 +90,6 @@ namespace PureImpl
         {
             foreach (var cell in _instance.Cells)
             {
-                cell.IsLife = cell.IsLifeNextSim;
-                
                 var neighbours = cell.Neighbours;
                 var lifeNeighbours = 0;
 
