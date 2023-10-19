@@ -1,5 +1,9 @@
 ﻿using System;
 using Config;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace PureImpl
@@ -9,14 +13,26 @@ namespace PureImpl
         [SerializeField] private KeyCode _restartKey = KeyCode.R;
         [SerializeField] private GameConfig _config;
 
-        private static readonly NeighbourFlags[] _neighboursToFlag = (NeighbourFlags[]) Enum.GetValues(typeof(NeighbourFlags));
+        private NativeArray<NeighbourFlags> _neighboursToFlag;
         private GameInstance _instance;
         private Transform _parent;
 
         private void Start()
         {
+            var neighboursToFlagManaged = (NeighbourFlags[]) Enum.GetValues(typeof(NeighbourFlags));
+            _neighboursToFlag = new NativeArray<NeighbourFlags>(neighboursToFlagManaged, Allocator.Persistent);
+            
             _parent = new GameObject("Graphics").transform;
             RecreateGame();
+        }
+
+        private void OnDestroy()
+        {
+            if (_neighboursToFlag.IsCreated)
+                _neighboursToFlag.Dispose();
+
+            if (_instance != null)
+                _instance.Dispose();
         }
 
         private void RecreateGame()
@@ -92,31 +108,18 @@ namespace PureImpl
 
         private void SimulateCells()
         {
-            var neighboursArray = _instance.Neighbours;
-            var isLifeArray = _instance.IsLife;
-            var isLifeNextSimArray = _instance.IsLifeNextSim;
-            
-            for (int i = 0, end = _instance.CellCount; i < end; i++)
+            new SimulateCellsJob
             {
-                var neighbours = neighboursArray[i];
-                var lifeNeighbours = 0;
-
-                bool IsNeighbourLife(ref int neighbour) => neighbour != -1 && isLifeArray[neighbour];
-                if (IsNeighbourLife(ref neighbours.N)) lifeNeighbours++;
-                if (IsNeighbourLife(ref neighbours.NE)) lifeNeighbours++;
-                if (IsNeighbourLife(ref neighbours.E)) lifeNeighbours++;
-                if (IsNeighbourLife(ref neighbours.SE)) lifeNeighbours++;
-                if (IsNeighbourLife(ref neighbours.S)) lifeNeighbours++;
-                if (IsNeighbourLife(ref neighbours.SW)) lifeNeighbours++;
-                if (IsNeighbourLife(ref neighbours.W)) lifeNeighbours++;
-                if (IsNeighbourLife(ref neighbours.NW)) lifeNeighbours++;
-
-                var neighboursTestFlags = isLifeArray[i] ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
-                var neighboursCountFlag = _neighboursToFlag[lifeNeighbours];
-                isLifeNextSimArray[i] = (neighboursTestFlags & neighboursCountFlag) != 0;
-            }
+                Count = _instance.CellCount,
+                IsLife = _instance.IsLife,
+                IsLifeNextSim = _instance.IsLifeNextSim,
+                Neighbours = _instance.Neighbours,
+                LifeNeighboursToLive = _config.LifeNeighboursToLive,
+                LifeNeighboursToBecomeLife = _config.LifeNeighboursToBecomeLife,
+                NeighboursToFlag = _neighboursToFlag
+            }.Schedule().Complete();
         }
-
+        
         private void UpdateCellGraphics()
         {
             for (int i = 0, end = _instance.CellCount; i < end; i++)
