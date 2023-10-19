@@ -1,36 +1,50 @@
 ﻿using System;
-using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace PureImpl
 {
-    public class GameInstance
+    public class GameInstance : IDisposable
     {
         public int GridWidth;
         public int GridHeight;
         public float SimulationInterval;
-        public List<Cell> Cells = new();
-    }
-
-    public class Cell
-    {
-        public bool IsLife;
-        public bool IsLifeNextSim;
-        public Vector2Int Position;
-        public Neighbours Neighbours;
-        public Renderable Renderable;
+        public NativeArray<bool> IsLife;
+        public NativeArray<bool> IsLifeNextSim;
+        public NativeArray<int2> Position;
+        public NativeArray<Neighbours> Neighbours;
+        public Renderable[] Renderables;
+        public int CellCount;
+        
+        public void CreateArrays(int length)
+        {
+            IsLife = new NativeArray<bool>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+            IsLifeNextSim = new NativeArray<bool>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+            Position = new NativeArray<int2>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+            Neighbours = new NativeArray<Neighbours>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+            Renderables = new Renderable[length];
+        }
+        
+        public void Dispose()
+        {
+            IsLife.Dispose();
+            IsLifeNextSim.Dispose();
+            Position.Dispose();
+            Neighbours.Dispose();
+        }
     }
 
     public struct Neighbours
     {
-        public Cell N;
-        public Cell NE;
-        public Cell E;
-        public Cell SE;
-        public Cell S;
-        public Cell SW;
-        public Cell W;
-        public Cell NW;
+        public int N;
+        public int NE;
+        public int E;
+        public int SE;
+        public int S;
+        public int SW;
+        public int W;
+        public int NW;
     }
 
     public struct Renderable

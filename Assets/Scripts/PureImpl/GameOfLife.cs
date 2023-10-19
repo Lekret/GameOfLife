@@ -23,16 +23,19 @@ namespace PureImpl
         {
             if (_instance != null)
             {
-                foreach (var cell in _instance.Cells)
+                for (int i = 0, end = _instance.CellCount; i < end; i++)
                 {
-                    if (cell.Renderable.Renderer)
-                        Destroy(cell.Renderable.Renderer.gameObject);
+                    var renderable = _instance.Renderables[i];
+                    if (renderable.Renderer)
+                        Destroy(renderable.Renderer.gameObject);
                 }
+
+                _instance.Dispose();
             }
 
             _instance = GameOfLifeInitialization.CreateInstance(_config);
 
-            foreach (var cell in _instance.Cells)
+            for (int i = 0, end = _instance.CellCount; i < end; i++)
             {
                 var cellObj = new GameObject("Cell");
                 var renderable = new Renderable
@@ -41,10 +44,11 @@ namespace PureImpl
                     Filter = cellObj.AddComponent<MeshFilter>()
                 };
                 cellObj.transform.SetParent(_parent);
+                var position = _instance.Position[i];
                 cellObj.transform.position = _config.DrawOrigin + new Vector3(
-                    cell.Position.x + cell.Position.x * _config.DrawWidthSpacing,
-                    cell.Position.y + cell.Position.y * _config.DrawHeightSpacing);
-                cell.Renderable = renderable;
+                    position.x + position.x * _config.DrawWidthSpacing,
+                    position.y + position.y * _config.DrawHeightSpacing);
+                _instance.Renderables[i] = renderable;
             }
         }
 
@@ -67,11 +71,9 @@ namespace PureImpl
 
         private void ApplyLifeNextSim()
         {
-            var cells = _instance.Cells;
-            for (var i = 0; i < cells.Count; i++)
+            for (int i = 0, end = _instance.CellCount; i < end; i++)
             {
-                var cell = cells[i];
-                cell.IsLife = cell.IsLifeNextSim;
+                _instance.IsLife[i] = _instance.IsLifeNextSim[i];
             }
         }
 
@@ -90,14 +92,16 @@ namespace PureImpl
 
         private void SimulateCells()
         {
-            var cells = _instance.Cells;
-            for (var i = 0; i < cells.Count; i++)
+            var neighboursArray = _instance.Neighbours;
+            var isLifeArray = _instance.IsLife;
+            var isLifeNextSimArray = _instance.IsLifeNextSim;
+            
+            for (int i = 0, end = _instance.CellCount; i < end; i++)
             {
-                var cell = cells[i];
-                var neighbours = cell.Neighbours;
+                var neighbours = neighboursArray[i];
                 var lifeNeighbours = 0;
 
-                bool IsNeighbourLife(ref Cell neighbour) => neighbour != null && neighbour.IsLife;
+                bool IsNeighbourLife(ref int neighbour) => neighbour != -1 && isLifeArray[neighbour];
                 if (IsNeighbourLife(ref neighbours.N)) lifeNeighbours++;
                 if (IsNeighbourLife(ref neighbours.NE)) lifeNeighbours++;
                 if (IsNeighbourLife(ref neighbours.E)) lifeNeighbours++;
@@ -107,20 +111,18 @@ namespace PureImpl
                 if (IsNeighbourLife(ref neighbours.W)) lifeNeighbours++;
                 if (IsNeighbourLife(ref neighbours.NW)) lifeNeighbours++;
 
-                var neighboursTestFlags = cell.IsLife ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
+                var neighboursTestFlags = isLifeArray[i] ? _config.LifeNeighboursToLive : _config.LifeNeighboursToBecomeLife;
                 var neighboursCountFlag = _neighboursToFlag[lifeNeighbours];
-                cell.IsLifeNextSim = (neighboursTestFlags & neighboursCountFlag) != 0;
+                isLifeNextSimArray[i] = (neighboursTestFlags & neighboursCountFlag) != 0;
             }
         }
 
         private void UpdateCellGraphics()
         {
-            var cells = _instance.Cells;
-            for (var i = 0; i < cells.Count; i++)
+            for (int i = 0, end = _instance.CellCount; i < end; i++)
             {
-                var cell = cells[i];
-                var renderable = cell.Renderable;
-                var material = cell.IsLife ? _config.LifeMaterial : _config.DeathMaterial;
+                var renderable = _instance.Renderables[i];
+                var material = _instance.IsLife[i] ? _config.LifeMaterial : _config.DeathMaterial;
                 renderable.Renderer.material = material;
                 renderable.Filter.mesh = _config.CellMesh;
             }
