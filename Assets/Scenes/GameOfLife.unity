@@ -339,14 +339,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66cb040956a84d33b97aab4d52813866, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LifeNeighboursToBecomeLife: 03000000
-  LifeNeighboursToLive: 0200000003000000
-  GridWidth: 30
-  GridHeight: 30
+  LifeNeighboursToBecomeLife: 4
+  LifeNeighboursToLive: 6
+  GridWidth: 100
+  GridHeight: 100
   SimulateKey: 32
   SimulateByKey: 0
   SimulationInterval: 0.1
-  StartPattern: {fileID: 11400000, guid: 551040eee5a32b34ba3744bc1fb9c5db, type: 2}
+  StartPattern: {fileID: 11400000, guid: 9d124cd13a8d7a94c8b2668a1cd7dd7f, type: 2}
   DrawWidthSpacing: 0
   DrawHeightSpacing: 0
   DrawOrigin: {x: 0.5, y: 0.5, z: 0}
