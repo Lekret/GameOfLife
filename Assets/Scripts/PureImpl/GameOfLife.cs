@@ -67,8 +67,10 @@ namespace PureImpl
 
         private void ApplyLifeNextSim()
         {
-            foreach (var cell in _instance.Cells)
+            var cells = _instance.Cells;
+            for (var i = 0; i < cells.Count; i++)
             {
+                var cell = cells[i];
                 cell.IsLife = cell.IsLifeNextSim;
             }
         }
@@ -88,8 +90,10 @@ namespace PureImpl
 
         private void SimulateCells()
         {
-            foreach (var cell in _instance.Cells)
+            var cells = _instance.Cells;
+            for (var i = 0; i < cells.Count; i++)
             {
+                var cell = cells[i];
                 var neighbours = cell.Neighbours;
                 var lifeNeighbours = 0;
 
@@ -111,8 +115,10 @@ namespace PureImpl
 
         private void UpdateCellGraphics()
         {
-            foreach (var cell in _instance.Cells)
+            var cells = _instance.Cells;
+            for (var i = 0; i < cells.Count; i++)
             {
+                var cell = cells[i];
                 var renderable = cell.Renderable;
                 var material = cell.IsLife ? _config.LifeMaterial : _config.DeathMaterial;
                 renderable.Renderer.material = material;
