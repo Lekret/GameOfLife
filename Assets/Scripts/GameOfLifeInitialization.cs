@@ -26,8 +26,14 @@ public static class GameOfLifeInitialization
         {
             for (var y = 0; y < height; y++)
             {
-                instance.Position[cellCounter] = new int2(x, y);
                 tempCellGrid[x, y] = cellCounter;
+                var pos = new int2(x, y);
+                instance.Position[cellCounter] = pos;
+                instance.DrawMatrix[cellCounter] = Matrix4x4.TRS(
+                    pos: config.DrawOrigin +
+                         new Vector3(pos.x + pos.x * config.DrawWidthSpacing, pos.y + pos.y * config.DrawHeightSpacing),
+                    q: Quaternion.identity,
+                    s: Vector3.one);
                 cellCounter++;
             }
         }

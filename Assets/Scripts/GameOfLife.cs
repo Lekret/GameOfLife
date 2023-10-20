@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Buffers;
 using Config;
 using Jobs;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -14,13 +16,14 @@ public class GameOfLife : MonoBehaviour
 
     private NativeArray<NeighbourFlags> _neighboursToFlag;
     private GameInstance _instance;
-    private Transform _parent;
+    private CommandBuffer _commandBuffer;
 
     private void Start()
     {
         var neighboursToFlagManaged = (NeighbourFlags[]) Enum.GetValues(typeof(NeighbourFlags));
         _neighboursToFlag = new NativeArray<NeighbourFlags>(neighboursToFlagManaged, Allocator.Persistent);
-        _parent = new GameObject("Graphics").transform;
+        _commandBuffer = new CommandBuffer();
+        Camera.main.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, _commandBuffer);
         RecreateGame();
     }
 
@@ -31,41 +34,19 @@ public class GameOfLife : MonoBehaviour
 
         if (_instance != null)
             _instance.Dispose();
+        
+        if (_commandBuffer != null)
+            _commandBuffer.Dispose();
     }
 
     private void RecreateGame()
     {
         if (_instance != null)
         {
-            for (int i = 0, end = _instance.CellCount; i < end; i++)
-            {
-                var renderable = _instance.Renderables[i];
-                if (renderable.Renderer)
-                    Destroy(renderable.Renderer.gameObject);
-            }
-
             _instance.Dispose();
         }
 
         _instance = GameOfLifeInitialization.CreateInstance(_config);
-
-        for (int i = 0, end = _instance.CellCount; i < end; i++)
-        {
-            var cellObj = new GameObject("Cell");
-            var renderable = new Renderable
-            {
-                Renderer = cellObj.AddComponent<MeshRenderer>(),
-                Filter = cellObj.AddComponent<MeshFilter>()
-            };
-            renderable.Filter.mesh = _config.CellMesh;
-            cellObj.transform.SetParent(_parent);
-            var position = _instance.Position[i];
-            cellObj.transform.position = _config.DrawOrigin + new Vector3(
-                position.x + position.x * _config.DrawWidthSpacing,
-                position.y + position.y * _config.DrawHeightSpacing);
-            _instance.Renderables[i] = renderable;
-        }
-
         UpdateCellGraphics();
     }
 
@@ -117,19 +98,41 @@ public class GameOfLife : MonoBehaviour
             NeighboursToFlag = _neighboursToFlag
         }.Schedule().Complete();
     }
-
+    
     private unsafe void UpdateCellGraphics()
     {
+        _commandBuffer.Clear();
+        
         var isLifePtr = _instance.IsLife.GetUnsafePtr();
-        var renderables = _instance.Renderables;
-
-        for (int i = 0, end = _instance.CellCount; i < end; i++)
+        var drawMatrixPtr = _instance.DrawMatrix.GetUnsafePtr();
+        var cellCount = _instance.CellCount;
+        var lifeMatrices = ArrayPool<Matrix4x4>.Shared.Rent(cellCount);
+        var lifeMatrixIdx = 0;
+        var deathMatrices = ArrayPool<Matrix4x4>.Shared.Rent(cellCount);
+        var deathMatrixIdx = 0;
+        
+        for (var i = 0; i < cellCount; i++)
         {
-            var rend = renderables[i].Renderer;
             var isLife = UnsafeUtility.ReadArrayElement<bool>(isLifePtr, i);
-            var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
-            rend.material = material;
+            var matrix = UnsafeUtility.ReadArrayElement<Matrix4x4>(drawMatrixPtr, i);
+            
+            if (isLife)
+            {
+                lifeMatrices[lifeMatrixIdx] = matrix;
+                lifeMatrixIdx++;
+            }
+            else
+            {
+                deathMatrices[deathMatrixIdx] = matrix;
+                deathMatrixIdx++;
+            }
         }
+        
+        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.LifeMaterial, -1, lifeMatrices, lifeMatrixIdx);
+        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.DeathMaterial, -1, deathMatrices, deathMatrixIdx);
+        
+        ArrayPool<Matrix4x4>.Shared.Return(lifeMatrices);
+        ArrayPool<Matrix4x4>.Shared.Return(deathMatrices);
     }
 
     private void UpdateCameraPosition()

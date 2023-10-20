@@ -341,8 +341,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LifeNeighboursToBecomeLife: 4
   LifeNeighboursToLive: 6
-  GridWidth: 100
-  GridHeight: 100
+  GridWidth: 50
+  GridHeight: 50
   SimulateKey: 32
   SimulateByKey: 0
   SimulationInterval: 0.1
