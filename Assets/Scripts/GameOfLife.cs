@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class GameOfLife : MonoBehaviour
 {
@@ -14,15 +15,12 @@ public class GameOfLife : MonoBehaviour
     private NativeArray<NeighbourFlags> _neighboursToFlag;
     private GameInstance _instance;
     private Transform _parent;
-    private MaterialPropertyBlock _materialPropBlock;
-    private static readonly int ColorId = Shader.PropertyToID("_Color");
 
     private void Start()
     {
         var neighboursToFlagManaged = (NeighbourFlags[]) Enum.GetValues(typeof(NeighbourFlags));
         _neighboursToFlag = new NativeArray<NeighbourFlags>(neighboursToFlagManaged, Allocator.Persistent);
         _parent = new GameObject("Graphics").transform;
-        _materialPropBlock = new MaterialPropertyBlock();
         RecreateGame();
     }
 
@@ -67,7 +65,7 @@ public class GameOfLife : MonoBehaviour
                 position.y + position.y * _config.DrawHeightSpacing);
             _instance.Renderables[i] = renderable;
         }
-        
+
         UpdateCellGraphics();
     }
 
@@ -90,12 +88,7 @@ public class GameOfLife : MonoBehaviour
 
     private void ApplyLifeNextSim()
     {
-        new ApplyLifeNextSim
-        {
-            Count = _instance.CellCount,
-            IsLife = _instance.IsLife,
-            IsLifeNextSim = _instance.IsLifeNextSim
-        }.Schedule().Complete();
+        (_instance.IsLife, _instance.IsLifeNextSim) = (_instance.IsLifeNextSim, _instance.IsLife);
     }
 
     private bool ShouldTriggerSimulation()
@@ -129,7 +122,7 @@ public class GameOfLife : MonoBehaviour
     {
         var isLifePtr = _instance.IsLife.GetUnsafePtr();
         var renderables = _instance.Renderables;
-        
+
         for (int i = 0, end = _instance.CellCount; i < end; i++)
         {
             var rend = renderables[i].Renderer;
