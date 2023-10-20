@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Buffers;
 using Config;
+using Data;
 using Jobs;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -13,24 +13,25 @@ public class GameOfLife : MonoBehaviour
 {
     [SerializeField] private KeyCode _restartKey = KeyCode.R;
     [SerializeField] private GameConfig _config;
+    [SerializeField] private Camera _camera;
 
-    private NativeArray<NeighbourFlags> _neighboursToFlag;
+    private NativeArray<NeighboursCount> _numToNeighboursCount;
     private GameInstance _instance;
     private CommandBuffer _commandBuffer;
 
     private void Start()
     {
-        var neighboursToFlagManaged = (NeighbourFlags[]) Enum.GetValues(typeof(NeighbourFlags));
-        _neighboursToFlag = new NativeArray<NeighbourFlags>(neighboursToFlagManaged, Allocator.Persistent);
+        var neighboursCountManaged = (NeighboursCount[]) Enum.GetValues(typeof(NeighboursCount));
+        _numToNeighboursCount = new NativeArray<NeighboursCount>(neighboursCountManaged, Allocator.Persistent);
         _commandBuffer = new CommandBuffer();
-        Camera.main.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, _commandBuffer);
+        _camera.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, _commandBuffer);
         RecreateGame();
     }
 
     private void OnDestroy()
     {
-        if (_neighboursToFlag.IsCreated)
-            _neighboursToFlag.Dispose();
+        if (_numToNeighboursCount.IsCreated)
+            _numToNeighboursCount.Dispose();
 
         if (_instance != null)
             _instance.Dispose();
@@ -95,7 +96,7 @@ public class GameOfLife : MonoBehaviour
             Neighbours = _instance.Neighbours,
             LifeNeighboursToLive = _config.LifeNeighboursToLive,
             LifeNeighboursToBecomeLife = _config.LifeNeighboursToBecomeLife,
-            NeighboursToFlag = _neighboursToFlag
+            NumToNeighboursCount = _numToNeighboursCount
         }.Schedule().Complete();
     }
     
@@ -107,9 +108,9 @@ public class GameOfLife : MonoBehaviour
         var drawMatrixPtr = _instance.DrawMatrix.GetUnsafePtr();
         var cellCount = _instance.CellCount;
         var lifeMatrices = ArrayPool<Matrix4x4>.Shared.Rent(cellCount);
-        var lifeMatrixIdx = 0;
+        var lifeCount = 0;
         var deathMatrices = ArrayPool<Matrix4x4>.Shared.Rent(cellCount);
-        var deathMatrixIdx = 0;
+        var deathCount = 0;
         
         for (var i = 0; i < cellCount; i++)
         {
@@ -118,18 +119,18 @@ public class GameOfLife : MonoBehaviour
             
             if (isLife)
             {
-                lifeMatrices[lifeMatrixIdx] = matrix;
-                lifeMatrixIdx++;
+                lifeMatrices[lifeCount] = matrix;
+                lifeCount++;
             }
             else
             {
-                deathMatrices[deathMatrixIdx] = matrix;
-                deathMatrixIdx++;
+                deathMatrices[deathCount] = matrix;
+                deathCount++;
             }
         }
         
-        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.LifeMaterial, -1, lifeMatrices, lifeMatrixIdx);
-        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.DeathMaterial, -1, deathMatrices, deathMatrixIdx);
+        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.LifeMaterial, -1, lifeMatrices, lifeCount);
+        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.DeathMaterial, -1, deathMatrices, deathCount);
         
         ArrayPool<Matrix4x4>.Shared.Return(lifeMatrices);
         ArrayPool<Matrix4x4>.Shared.Return(deathMatrices);
@@ -145,6 +146,6 @@ public class GameOfLife : MonoBehaviour
             height / 2f + _config.DrawHeightSpacing * (height / 2f),
             -_config.CameraDistance
         );
-        Camera.main.transform.position = cameraPosition;
+        _camera.transform.position = cameraPosition;
     }
 }

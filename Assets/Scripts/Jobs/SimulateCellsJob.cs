@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using Data;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 
@@ -10,10 +11,10 @@ namespace Jobs
         public int Count;
         [ReadOnly] public NativeArray<bool> IsLife;
         [ReadOnly] public NativeArray<Neighbours> Neighbours;
-        [ReadOnly] public NativeArray<NeighbourFlags> NeighboursToFlag;
+        [ReadOnly] public NativeArray<NeighboursCount> NumToNeighboursCount;
         [WriteOnly] public NativeArray<bool> IsLifeNextSim;
-        public NeighbourFlags LifeNeighboursToLive;
-        public NeighbourFlags LifeNeighboursToBecomeLife;
+        public NeighboursCount LifeNeighboursToLive;
+        public NeighboursCount LifeNeighboursToBecomeLife;
 
         public void Execute()
         {
@@ -32,7 +33,7 @@ namespace Jobs
                 if (IsNeighbourLife(neighbours.NW)) lifeNeighbours++;
 
                 var neighboursTestFlags = IsLife[i] ? LifeNeighboursToLive : LifeNeighboursToBecomeLife;
-                var neighboursCountFlag = NeighboursToFlag[lifeNeighbours];
+                var neighboursCountFlag = NumToNeighboursCount[lifeNeighbours];
                 IsLifeNextSim[i] = (neighboursTestFlags & neighboursCountFlag) != 0;
             }
         }

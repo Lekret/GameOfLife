@@ -1,12 +1,13 @@
-﻿using UnityEngine;
+﻿using Data;
+using UnityEngine;
 
 namespace Config
 {
     public class GameConfig : MonoBehaviour
     {
         [Header("Rules")] 
-        public NeighbourFlags LifeNeighboursToBecomeLife = NeighbourFlags.Three;
-        public NeighbourFlags LifeNeighboursToLive = NeighbourFlags.Two | NeighbourFlags.Three;
+        public NeighboursCount LifeNeighboursToBecomeLife = NeighboursCount.Three;
+        public NeighboursCount LifeNeighboursToLive = NeighboursCount.Two | NeighboursCount.Three;
         public int GridWidth;
         public int GridHeight;
 

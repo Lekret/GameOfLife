@@ -1,4 +1,5 @@
 ﻿using Config;
+using Data;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
