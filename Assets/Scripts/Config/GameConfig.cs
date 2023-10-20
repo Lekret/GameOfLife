@@ -1,5 +1,4 @@
-﻿using PureImpl;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Config
 {
