@@ -353,7 +353,7 @@ MonoBehaviour:
   LifeMaterial: {fileID: 2100000, guid: d27ca3c692cc30144a4a755688c14484, type: 2}
   DeathMaterial: {fileID: 2100000, guid: be863f645d7c54342a731341b71e4049, type: 2}
   CellMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  CameraDistance: 37
+  CameraDistance: 50
 --- !u!4 &1878296693
 Transform:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@
 using Config;
 using Jobs;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
@@ -13,13 +14,15 @@ public class GameOfLife : MonoBehaviour
     private NativeArray<NeighbourFlags> _neighboursToFlag;
     private GameInstance _instance;
     private Transform _parent;
+    private MaterialPropertyBlock _materialPropBlock;
+    private static readonly int ColorId = Shader.PropertyToID("_Color");
 
     private void Start()
     {
         var neighboursToFlagManaged = (NeighbourFlags[]) Enum.GetValues(typeof(NeighbourFlags));
         _neighboursToFlag = new NativeArray<NeighbourFlags>(neighboursToFlagManaged, Allocator.Persistent);
-            
         _parent = new GameObject("Graphics").transform;
+        _materialPropBlock = new MaterialPropertyBlock();
         RecreateGame();
     }
 
@@ -56,6 +59,7 @@ public class GameOfLife : MonoBehaviour
                 Renderer = cellObj.AddComponent<MeshRenderer>(),
                 Filter = cellObj.AddComponent<MeshFilter>()
             };
+            renderable.Filter.mesh = _config.CellMesh;
             cellObj.transform.SetParent(_parent);
             var position = _instance.Position[i];
             cellObj.transform.position = _config.DrawOrigin + new Vector3(
@@ -63,6 +67,8 @@ public class GameOfLife : MonoBehaviour
                 position.y + position.y * _config.DrawHeightSpacing);
             _instance.Renderables[i] = renderable;
         }
+        
+        UpdateCellGraphics();
     }
 
     private void Update()
@@ -118,15 +124,18 @@ public class GameOfLife : MonoBehaviour
             NeighboursToFlag = _neighboursToFlag
         }.Schedule().Complete();
     }
-        
-    private void UpdateCellGraphics()
+
+    private unsafe void UpdateCellGraphics()
     {
+        var isLifePtr = _instance.IsLife.GetUnsafePtr();
+        var renderables = _instance.Renderables;
+        
         for (int i = 0, end = _instance.CellCount; i < end; i++)
         {
-            var renderable = _instance.Renderables[i];
-            var material = _instance.IsLife[i] ? _config.LifeMaterial : _config.DeathMaterial;
-            renderable.Renderer.material = material;
-            renderable.Filter.mesh = _config.CellMesh;
+            var rend = renderables[i].Renderer;
+            var isLife = UnsafeUtility.ReadArrayElement<bool>(isLifePtr, i);
+            var material = isLife ? _config.LifeMaterial : _config.DeathMaterial;
+            rend.material = material;
         }
     }
 
