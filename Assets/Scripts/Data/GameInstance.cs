@@ -12,7 +12,6 @@ namespace Data
         public float SimulationInterval;
         public NativeArray<bool> IsLife;
         public NativeArray<bool> IsLifeNextSim;
-        public NativeArray<int2> Position;
         public NativeArray<Neighbours> Neighbours;
         public NativeArray<Matrix4x4> DrawMatrix;
         public int CellCount;
@@ -21,7 +20,6 @@ namespace Data
         {
             IsLife = new NativeArray<bool>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
             IsLifeNextSim = new NativeArray<bool>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
-            Position = new NativeArray<int2>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
             Neighbours = new NativeArray<Neighbours>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
             DrawMatrix = new NativeArray<Matrix4x4>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
         }
@@ -30,7 +28,6 @@ namespace Data
         {
             IsLife.Dispose();
             IsLifeNextSim.Dispose();
-            Position.Dispose();
             Neighbours.Dispose();
             DrawMatrix.Dispose();
         }

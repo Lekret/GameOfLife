@@ -24,6 +24,5 @@ namespace Config
         public Material LifeMaterial;
         public Material DeathMaterial;
         public Mesh CellMesh;
-        public float CameraDistance = 15;
     }
 }

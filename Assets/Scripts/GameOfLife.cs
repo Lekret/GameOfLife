@@ -24,6 +24,7 @@ public class GameOfLife : MonoBehaviour
         var neighboursCountManaged = (NeighboursCount[]) Enum.GetValues(typeof(NeighboursCount));
         _numToNeighboursCount = new NativeArray<NeighboursCount>(neighboursCountManaged, Allocator.Persistent);
         _commandBuffer = new CommandBuffer();
+        _camera.orthographic = true;
         _camera.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, _commandBuffer);
         RecreateGame();
     }
@@ -35,7 +36,7 @@ public class GameOfLife : MonoBehaviour
 
         if (_instance != null)
             _instance.Dispose();
-        
+
         if (_commandBuffer != null)
             _commandBuffer.Dispose();
     }
@@ -99,11 +100,11 @@ public class GameOfLife : MonoBehaviour
             NumToNeighboursCount = _numToNeighboursCount
         }.Schedule().Complete();
     }
-    
+
     private unsafe void UpdateCellGraphics()
     {
         _commandBuffer.Clear();
-        
+
         var isLifePtr = _instance.IsLife.GetUnsafePtr();
         var drawMatrixPtr = _instance.DrawMatrix.GetUnsafePtr();
         var cellCount = _instance.CellCount;
@@ -111,12 +112,12 @@ public class GameOfLife : MonoBehaviour
         var lifeCount = 0;
         var deathMatrices = ArrayPool<Matrix4x4>.Shared.Rent(cellCount);
         var deathCount = 0;
-        
+
         for (var i = 0; i < cellCount; i++)
         {
             var isLife = UnsafeUtility.ReadArrayElement<bool>(isLifePtr, i);
             var matrix = UnsafeUtility.ReadArrayElement<Matrix4x4>(drawMatrixPtr, i);
-            
+
             if (isLife)
             {
                 lifeMatrices[lifeCount] = matrix;
@@ -128,10 +129,10 @@ public class GameOfLife : MonoBehaviour
                 deathCount++;
             }
         }
-        
+
         _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.LifeMaterial, -1, lifeMatrices, lifeCount);
         _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.DeathMaterial, -1, deathMatrices, deathCount);
-        
+
         ArrayPool<Matrix4x4>.Shared.Return(lifeMatrices);
         ArrayPool<Matrix4x4>.Shared.Return(deathMatrices);
     }
@@ -140,12 +141,13 @@ public class GameOfLife : MonoBehaviour
     {
         var width = _instance.GridWidth;
         var height = _instance.GridHeight;
-        var cameraPosition = new Vector3
-        (
-            width / 2f + _config.DrawWidthSpacing * (width / 2f),
-            height / 2f + _config.DrawHeightSpacing * (height / 2f),
-            -_config.CameraDistance
-        );
+        var worldHalfWidth = width / 2f + _config.DrawWidthSpacing * (width / 2f);
+        var worldHalfHeight = height / 2f + _config.DrawHeightSpacing * (height / 2f);
+        var cameraPosition = new Vector3(worldHalfWidth, worldHalfHeight, -10);
         _camera.transform.position = cameraPosition;
+        var screenRatio = (float) Screen.width / Screen.height;
+        _camera.orthographicSize = Mathf.Max(
+            worldHalfHeight,
+            worldHalfWidth / screenRatio);
     }
 }

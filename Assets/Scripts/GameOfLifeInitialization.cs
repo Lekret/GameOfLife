@@ -23,23 +23,22 @@ public static class GameOfLifeInitialization
         var tempCellGrid = new int[width, height];
 
         var cellCounter = 0;
+        var positions = new int2[cellCount];
+        var drawMatrix = instance.DrawMatrix;
         for (var x = 0; x < width; x++)
+        for (var y = 0; y < height; y++)
         {
-            for (var y = 0; y < height; y++)
-            {
-                tempCellGrid[x, y] = cellCounter;
-                var pos = new int2(x, y);
-                instance.Position[cellCounter] = pos;
-                instance.DrawMatrix[cellCounter] = Matrix4x4.TRS(
-                    pos: config.DrawOrigin +
-                         new Vector3(pos.x + pos.x * config.DrawWidthSpacing, pos.y + pos.y * config.DrawHeightSpacing),
-                    q: Quaternion.identity,
-                    s: Vector3.one);
-                cellCounter++;
-            }
+            tempCellGrid[x, y] = cellCounter;
+            drawMatrix[cellCounter] = Matrix4x4.TRS(
+                pos: config.DrawOrigin +
+                     new Vector3(x + x * config.DrawWidthSpacing, y + y * config.DrawHeightSpacing),
+                q: Quaternion.identity,
+                s: Vector3.one);
+            positions[cellCounter] = new int2(x, y);
+            cellCounter++;
         }
-            
-        InitNeighbours(instance, tempCellGrid, width, height);
+
+        InitNeighbours(instance, positions, tempCellGrid, width, height);
 
         var startPattern = config.StartPattern;
         if (startPattern.UseRandom)
@@ -70,23 +69,23 @@ public static class GameOfLifeInitialization
         return instance;
     }
 
-    private static void InitNeighbours(GameInstance instance, int[,] tempCellGrid, int gridWidth, int gridHeight)
+    private static void InitNeighbours(GameInstance instance, int2[] positions, int[,] tempCellGrid, int gridWidth, int gridHeight)
     {
-        foreach (var cellIdx in tempCellGrid)
+        for (var i = 0; i < positions.Length; i++)
         {
-            var neighbours = instance.Neighbours[cellIdx];
-            var position = instance.Position[cellIdx];
-            var x = position.x;
-            var y = position.y;
-            InitNeighbour(x, y, 0, 1, ref neighbours.N, tempCellGrid, gridWidth, gridHeight);
-            InitNeighbour(x, y, 1, 1, ref neighbours.NE, tempCellGrid, gridWidth, gridHeight);
-            InitNeighbour(x, y, 1, 0, ref neighbours.E, tempCellGrid, gridWidth, gridHeight);
-            InitNeighbour(x, y, 1, -1, ref neighbours.SE, tempCellGrid, gridWidth, gridHeight);
-            InitNeighbour(x, y, 0, -1, ref neighbours.S, tempCellGrid, gridWidth, gridHeight);
-            InitNeighbour(x, y, -1, -1, ref neighbours.SW, tempCellGrid, gridWidth, gridHeight);
-            InitNeighbour(x, y, -1, 0, ref neighbours.W, tempCellGrid, gridWidth, gridHeight);
-            InitNeighbour(x, y, -1, 1, ref neighbours.NW, tempCellGrid, gridWidth, gridHeight);
-            instance.Neighbours[cellIdx] = neighbours;
+            var pos = positions[i];
+            var x = pos.x;
+            var y = pos.y;
+            var neighbours = instance.Neighbours[i];
+            InitNeighbour(x, y, 0, 1, tempCellGrid, gridWidth, gridHeight, out neighbours.S);
+            InitNeighbour(x, y, 1, 1, tempCellGrid, gridWidth, gridHeight, out neighbours.SE);
+            InitNeighbour(x, y, 1, 0, tempCellGrid, gridWidth, gridHeight, out neighbours.E);
+            InitNeighbour(x, y, 1, -1, tempCellGrid, gridWidth, gridHeight, out neighbours.NE);
+            InitNeighbour(x, y, 0, -1, tempCellGrid, gridWidth, gridHeight, out neighbours.N);
+            InitNeighbour(x, y, -1, -1, tempCellGrid, gridWidth, gridHeight, out neighbours.NW);
+            InitNeighbour(x, y, -1, 0, tempCellGrid, gridWidth, gridHeight, out neighbours.W);
+            InitNeighbour(x, y, -1, 1, tempCellGrid, gridWidth, gridHeight, out neighbours.SW);
+            instance.Neighbours[i] = neighbours;
         }
     }
 
@@ -95,10 +94,10 @@ public static class GameOfLifeInitialization
         int posY,
         int offsetX,
         int offsetY,
-        ref int neighbourSlot,
         int[,] grid,
         int gridWidth,
-        int gridHeight)
+        int gridHeight,
+        out int neighbourSlot)
     {
         var testX = posX + offsetX;
         var testY = posY + offsetY;
