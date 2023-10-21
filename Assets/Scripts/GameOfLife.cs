@@ -103,8 +103,6 @@ public class GameOfLife : MonoBehaviour
 
     private void UpdateCellGraphics()
     {
-        _commandBuffer.Clear();
-
         var cellCount = _instance.CellCount;
         
         var job = new GatherGraphicsDataJob
@@ -129,6 +127,7 @@ public class GameOfLife : MonoBehaviour
         job.LifeCount.Dispose();
         job.DeathCount.Dispose();
         
+        _commandBuffer.Clear();
         _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.LifeMaterial, -1, _instance.LifeDrawMatrices, lifeCount);
         _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.DeathMaterial, -1, _instance.DeathDrawMatrices, deathCount);
     }
