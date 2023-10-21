@@ -3,7 +3,7 @@
 namespace Data
 {
     [Flags]
-    public enum NeighboursCount
+    public enum NeighboursCount : byte
     {
         Zero = 0,
         One = 1 << 0,

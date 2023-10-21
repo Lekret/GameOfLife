@@ -1,5 +1,8 @@
-﻿namespace Data
+﻿using Unity.Burst;
+
+namespace Data
 {
+    [BurstCompile]
     public struct Neighbours
     {
         public int N;

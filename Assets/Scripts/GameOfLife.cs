@@ -11,7 +11,6 @@ using UnityEngine.Rendering;
 
 public class GameOfLife : MonoBehaviour
 {
-    [SerializeField] private KeyCode _restartKey = KeyCode.R;
     [SerializeField] private GameConfig _config;
     [SerializeField] private Camera _camera;
 
@@ -63,7 +62,7 @@ public class GameOfLife : MonoBehaviour
 
         UpdateCamera();
 
-        if (Input.GetKeyDown(_restartKey))
+        if (Input.GetKeyDown(_config.RestartKey))
         {
             RecreateGame();
         }
@@ -91,14 +90,13 @@ public class GameOfLife : MonoBehaviour
     {
         new SimulateCellsJob
         {
-            Count = _instance.CellCount,
             IsLife = _instance.IsLife,
             IsLifeNextSim = _instance.IsLifeNextSim,
             Neighbours = _instance.Neighbours,
             LifeNeighboursToLive = _config.LifeNeighboursToLive,
             LifeNeighboursToBecomeLife = _config.LifeNeighboursToBecomeLife,
             NumToNeighboursCount = _numToNeighboursCount
-        }.Schedule().Complete();
+        }.Schedule(_instance.CellCount, _config.SimulateCellsBatchCount).Complete();
     }
 
     private void UpdateCellGraphics()

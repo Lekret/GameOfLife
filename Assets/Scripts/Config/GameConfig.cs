@@ -12,11 +12,15 @@ namespace Config
         public int GridHeight;
 
         [Header("Simulation")] 
+        public KeyCode RestartKey = KeyCode.R;
         public KeyCode SimulateKey = KeyCode.Space;
         public bool SimulateByKey;
         public float SimulationInterval;
         public GamePattern StartPattern;
-        
+
+        [Header("Performance")] 
+        public int SimulateCellsBatchCount = 64;
+
         [Header("Graphics")] 
         public float DrawWidthSpacing;
         public float DrawHeightSpacing;
