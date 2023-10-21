@@ -146,10 +146,4 @@ public class GameOfLife : MonoBehaviour
             worldHalfHeight,
             worldHalfWidth / screenRatio);
     }
-
-    private void OnGUI()
-    {
-        GUI.skin.textArea.fontSize = 24;
-        GUI.TextArea(new Rect(100, 100, 300, 50), $"FPS: {1 / Time.deltaTime}");
-    }
 }
