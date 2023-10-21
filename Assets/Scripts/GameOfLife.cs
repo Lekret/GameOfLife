@@ -101,40 +101,35 @@ public class GameOfLife : MonoBehaviour
         }.Schedule().Complete();
     }
 
-    private unsafe void UpdateCellGraphics()
+    private void UpdateCellGraphics()
     {
         _commandBuffer.Clear();
 
-        var isLifePtr = _instance.IsLife.GetUnsafePtr();
-        var drawMatrixPtr = _instance.DrawMatrix.GetUnsafePtr();
         var cellCount = _instance.CellCount;
-        var lifeMatrices = ArrayPool<Matrix4x4>.Shared.Rent(cellCount);
-        var lifeCount = 0;
-        var deathMatrices = ArrayPool<Matrix4x4>.Shared.Rent(cellCount);
-        var deathCount = 0;
-
-        for (var i = 0; i < cellCount; i++)
+        
+        var job = new GatherGraphicsDataJob
         {
-            var isLife = UnsafeUtility.ReadArrayElement<bool>(isLifePtr, i);
-            var matrix = UnsafeUtility.ReadArrayElement<Matrix4x4>(drawMatrixPtr, i);
+            CellCount = cellCount,
+            IsLife = _instance.IsLife,
+            DrawMatrix = _instance.DrawMatrix,
+            LifeMatrices = new NativeArray<Matrix4x4>(cellCount, Allocator.TempJob),
+            DeathMatrices = new NativeArray<Matrix4x4>(cellCount, Allocator.TempJob),
+            LifeCount = new NativeArray<int>(1, Allocator.TempJob),
+            DeathCount = new NativeArray<int>(1, Allocator.TempJob)
+        };
+        job.Schedule().Complete();
 
-            if (isLife)
-            {
-                lifeMatrices[lifeCount] = matrix;
-                lifeCount++;
-            }
-            else
-            {
-                deathMatrices[deathCount] = matrix;
-                deathCount++;
-            }
-        }
-
-        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.LifeMaterial, -1, lifeMatrices, lifeCount);
-        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.DeathMaterial, -1, deathMatrices, deathCount);
-
-        ArrayPool<Matrix4x4>.Shared.Return(lifeMatrices);
-        ArrayPool<Matrix4x4>.Shared.Return(deathMatrices);
+        job.LifeMatrices.CopyTo(_instance.LifeDrawMatrices);
+        job.DeathMatrices.CopyTo(_instance.DeathDrawMatrices);
+        job.LifeMatrices.Dispose();
+        job.DeathMatrices.Dispose();
+        var lifeCount = job.LifeCount[0];
+        var deathCount = job.DeathCount[0];
+        job.LifeCount.Dispose();
+        job.DeathCount.Dispose();
+        
+        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.LifeMaterial, -1, _instance.LifeDrawMatrices, lifeCount);
+        _commandBuffer.DrawMeshInstanced(_config.CellMesh, 0, _config.DeathMaterial, -1, _instance.DeathDrawMatrices, deathCount);
     }
 
     private void UpdateCamera()

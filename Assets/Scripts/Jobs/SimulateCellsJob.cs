@@ -8,13 +8,13 @@ namespace Jobs
     [BurstCompile]
     public struct SimulateCellsJob : IJob
     {
-        public int Count;
+        [ReadOnly] public int Count;
         [ReadOnly] public NativeArray<bool> IsLife;
         [ReadOnly] public NativeArray<Neighbours> Neighbours;
         [ReadOnly] public NativeArray<NeighboursCount> NumToNeighboursCount;
+        [ReadOnly] public NeighboursCount LifeNeighboursToLive;
+        [ReadOnly] public NeighboursCount LifeNeighboursToBecomeLife;
         [WriteOnly] public NativeArray<bool> IsLifeNextSim;
-        public NeighboursCount LifeNeighboursToLive;
-        public NeighboursCount LifeNeighboursToBecomeLife;
 
         public void Execute()
         {

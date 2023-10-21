@@ -15,6 +15,8 @@ namespace Data
         public NativeArray<Neighbours> Neighbours;
         public NativeArray<Matrix4x4> DrawMatrix;
         public int CellCount;
+        public Matrix4x4[] DeathDrawMatrices;
+        public Matrix4x4[] LifeDrawMatrices;
         
         public void CreateArrays(int length)
         {
@@ -22,6 +24,8 @@ namespace Data
             IsLifeNextSim = new NativeArray<bool>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
             Neighbours = new NativeArray<Neighbours>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
             DrawMatrix = new NativeArray<Matrix4x4>(length, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+            DeathDrawMatrices = new Matrix4x4[length];
+            LifeDrawMatrices = new Matrix4x4[length];
         }
         
         public void Dispose()
