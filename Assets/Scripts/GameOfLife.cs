@@ -61,7 +61,7 @@ public class GameOfLife : MonoBehaviour
             UpdateCellGraphics();
         }
 
-        UpdateCameraPosition();
+        UpdateCamera();
 
         if (Input.GetKeyDown(_restartKey))
         {
@@ -137,7 +137,7 @@ public class GameOfLife : MonoBehaviour
         ArrayPool<Matrix4x4>.Shared.Return(deathMatrices);
     }
 
-    private void UpdateCameraPosition()
+    private void UpdateCamera()
     {
         var width = _instance.GridWidth;
         var height = _instance.GridHeight;
