@@ -1,77 +1,77 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class GameGUI : MonoBehaviour
 {
-    [SerializeField] private float _minMaxFpsUpdateInterval = 2;
+    [SerializeField] private float _minMaxFpsExpirationTime = 2f;
 
-    private readonly List<float> _frameDeltas = new();
+    private readonly List<(float Timestamp, float DeltaTime)> _frameDeltas = new();
     private int _minMaxUpdateTimer;
-    
-    private void Start()
-    {
-        StartCoroutine(UpdateMinMax());
-    }
-
-    private IEnumerator UpdateMinMax()
-    {
-        while (this)
-        {
-            yield return new WaitForSeconds(_minMaxFpsUpdateInterval);
-            _frameDeltas.Clear();
-        }
-    }
 
     private void Update()
     {
-        _frameDeltas.Add(Time.deltaTime);
+        RemoveExpiredFrameDeltas();
+        _frameDeltas.Add((Timestamp: Time.time, DeltaTime: Time.deltaTime));
+    }
+
+    private void RemoveExpiredFrameDeltas()
+    {
+        using var pooledList = ListPool<(float Time, float DeltaTime)>.Get(out var frameDeltasToRemove);
+        var minValidTime = Time.time - _minMaxFpsExpirationTime;
+        
+        foreach (var pair in _frameDeltas)
+        {
+            if (pair.Timestamp < minValidTime)
+                frameDeltasToRemove.Add(pair);
+        }
+
+        foreach (var frameDelta in frameDeltasToRemove)
+        {
+            _frameDeltas.Remove(frameDelta);
+        }
     }
 
     private void OnGUI()
     {
         GUI.skin.textArea.fontSize = 24;
-        var fps = FPS(Time.deltaTime);
-        var minMaxFps = GetMinMaxFPS();
+        var fps = Fps(Time.deltaTime);
+        var minMaxFps = GetMinMaxFps();
         GUI.TextArea(new Rect(100, 100, 300, 50), StringCache<int>.Get("FPS: {0}", fps));
         GUI.TextArea(new Rect(100, 150, 300, 50), StringCache<int>.Get("MIN FPS: {0}", minMaxFps.Min));
         GUI.TextArea(new Rect(100, 200, 300, 50), StringCache<int>.Get("MAX FPS: {0}", minMaxFps.Max));
     }
 
-    private (int Min, int Max) GetMinMaxFPS()
+    private (int Min, int Max) GetMinMaxFps()
     {
         if (_frameDeltas.Count == 0)
         {
-            var fps = FPS(Time.deltaTime);
+            var fps = Fps(Time.deltaTime);
             return (fps, fps);
         }
 
-        var (minDelta, maxDelta) = GetMinMax(_frameDeltas);
-        return (FPS(maxDelta), FPS(minDelta));
-    }
+        var minDelta = float.MaxValue;
+        var maxDelta = float.MinValue;
 
-    private static int FPS(float deltaTime)
-    {
-        return Mathf.FloorToInt(1 / deltaTime);
-    }
-
-    private static (float Min, float Max) GetMinMax(List<float> elements)
-    {
-        var min = float.MaxValue;
-        var max = float.MinValue;
-
-        for (int i = 0, end = elements.Count; i < end; i++)
+        for (int i = 0, end = _frameDeltas.Count; i < end; i++)
         {
-            if (elements[i] > max)
+            var dt = _frameDeltas[i].DeltaTime;
+            if (dt > maxDelta)
             {
-                max = elements[i];
+                maxDelta = dt;
             }
-            else if (elements[i] < min)
+            else if (dt < minDelta)
             {
-                min = elements[i];
+                minDelta = dt;
             }
         }
+        
+        return (Fps(maxDelta), Fps(minDelta));
+    }
 
-        return (min, max);
+    private static int Fps(float deltaTime)
+    {
+        return Mathf.FloorToInt(1 / deltaTime);
     }
 }
