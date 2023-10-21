@@ -101,15 +101,13 @@ public class GameOfLife : MonoBehaviour
 
     private void UpdateCellGraphics()
     {
-        var cellCount = _instance.CellCount;
-        
         var job = new GatherGraphicsDataJob
         {
-            CellCount = cellCount,
+            CellCount = _instance.CellCount,
             IsLife = _instance.IsLife,
             DrawMatrix = _instance.DrawMatrix,
-            LifeMatrices = new NativeArray<Matrix4x4>(cellCount, Allocator.TempJob),
-            DeathMatrices = new NativeArray<Matrix4x4>(cellCount, Allocator.TempJob),
+            LifeMatrices = new NativeArray<Matrix4x4>(_instance.CellCount, Allocator.TempJob),
+            DeathMatrices = new NativeArray<Matrix4x4>(_instance.CellCount, Allocator.TempJob),
             LifeCount = new NativeArray<int>(1, Allocator.TempJob),
             DeathCount = new NativeArray<int>(1, Allocator.TempJob)
         };
@@ -117,11 +115,11 @@ public class GameOfLife : MonoBehaviour
 
         job.LifeMatrices.CopyTo(_instance.LifeDrawMatrices);
         job.DeathMatrices.CopyTo(_instance.DeathDrawMatrices);
-        job.LifeMatrices.Dispose();
-        job.DeathMatrices.Dispose();
-        
         var lifeCount = job.LifeCount[0];
         var deathCount = job.DeathCount[0];
+
+        job.LifeMatrices.Dispose();
+        job.DeathMatrices.Dispose();
         job.LifeCount.Dispose();
         job.DeathCount.Dispose();
         
