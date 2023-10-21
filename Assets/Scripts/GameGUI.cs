@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-public class SimpleGUI : MonoBehaviour
+public class GameGUI : MonoBehaviour
 {
     [SerializeField] private float _minMaxFpsUpdateInterval = 2;
 
@@ -33,10 +31,11 @@ public class SimpleGUI : MonoBehaviour
     private void OnGUI()
     {
         GUI.skin.textArea.fontSize = 24;
+        var fps = FPS(Time.deltaTime);
         var minMaxFps = GetMinMaxFPS();
-        GUI.TextArea(new Rect(100, 100, 300, 50), $"FPS: {FPS(Time.deltaTime)}");
-        GUI.TextArea(new Rect(100, 150, 300, 50), $"MIN FPS: {minMaxFps.Min}");
-        GUI.TextArea(new Rect(100, 200, 300, 50), $"MAX FPS: {minMaxFps.Max}");
+        GUI.TextArea(new Rect(100, 100, 300, 50), StringCache<int>.Get("FPS: {0}", fps));
+        GUI.TextArea(new Rect(100, 150, 300, 50), StringCache<int>.Get("MIN FPS: {0}", minMaxFps.Min));
+        GUI.TextArea(new Rect(100, 200, 300, 50), StringCache<int>.Get("MAX FPS: {0}", minMaxFps.Max));
     }
 
     private (int Min, int Max) GetMinMaxFPS()
