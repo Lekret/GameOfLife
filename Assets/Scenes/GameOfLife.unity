@@ -346,14 +346,13 @@ MonoBehaviour:
   SimulateKey: 32
   SimulateByKey: 0
   SimulationInterval: 0.1
-  StartPattern: {fileID: 11400000, guid: 862ba843743117a40a769994209e95c1, type: 2}
+  StartPattern: {fileID: 11400000, guid: 9d124cd13a8d7a94c8b2668a1cd7dd7f, type: 2}
   DrawWidthSpacing: 0
   DrawHeightSpacing: 0
   DrawOrigin: {x: 0.5, y: 0.5, z: 0}
   LifeMaterial: {fileID: 2100000, guid: d27ca3c692cc30144a4a755688c14484, type: 2}
   DeathMaterial: {fileID: 2100000, guid: be863f645d7c54342a731341b71e4049, type: 2}
   CellMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
-  CameraDistance: 50
 --- !u!4 &1878296693
 Transform:
   m_ObjectHideFlags: 0
@@ -381,6 +380,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f459561823ea49388f515607be9e86b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 963194227}
   _restartKey: 114
   _config: {fileID: 1878296691}
+  _camera: {fileID: 963194227}
