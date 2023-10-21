@@ -123,6 +123,7 @@ public class GameOfLife : MonoBehaviour
         job.DeathMatrices.CopyTo(_instance.DeathDrawMatrices);
         job.LifeMatrices.Dispose();
         job.DeathMatrices.Dispose();
+        
         var lifeCount = job.LifeCount[0];
         var deathCount = job.DeathCount[0];
         job.LifeCount.Dispose();
@@ -144,5 +145,11 @@ public class GameOfLife : MonoBehaviour
         _camera.orthographicSize = Mathf.Max(
             worldHalfHeight,
             worldHalfWidth / screenRatio);
+    }
+
+    private void OnGUI()
+    {
+        GUI.skin.textArea.fontSize = 24;
+        GUI.TextArea(new Rect(100, 100, 300, 50), $"FPS: {1 / Time.deltaTime}");
     }
 }
