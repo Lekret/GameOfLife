@@ -20,25 +20,21 @@ public static class GameOfLifeInitialization
 
         var width = config.GridWidth;
         var height = config.GridHeight;
-        var tempCellGrid = new int[width, height];
 
         var cellCounter = 0;
-        var positions = new int2[cellCount];
         var drawMatrix = instance.DrawMatrix;
         for (var x = 0; x < width; x++)
         for (var y = 0; y < height; y++)
         {
-            tempCellGrid[x, y] = cellCounter;
             drawMatrix[cellCounter] = Matrix4x4.TRS(
                 pos: config.DrawOrigin +
                      new Vector3(x + x * config.DrawWidthSpacing, y + y * config.DrawHeightSpacing),
                 q: Quaternion.identity,
                 s: Vector3.one);
-            positions[cellCounter] = new int2(x, y);
             cellCounter++;
         }
 
-        InitNeighbours(instance, positions, tempCellGrid, width, height);
+        InitNeighbours(instance);
 
         var startPattern = config.StartPattern;
         if (startPattern.UseRandom)
@@ -47,7 +43,7 @@ public static class GameOfLifeInitialization
                 Random.InitState(startPattern.Seed);
             Debug.Log($"Generating with seed: {Random.seed}");
 
-            foreach (var cellIdx in tempCellGrid)
+            for (var cellIdx = 0; cellIdx < cellCount; cellIdx++)
             {
                 if (startPattern.LifeProbability > Random.Range(0f, 1f))
                 {
@@ -58,9 +54,9 @@ public static class GameOfLifeInitialization
         }
         else
         {
-            foreach (var lifeCellPosition in startPattern.LifeCells)
+            foreach (var cellPosition in startPattern.LifeCells)
             {
-                var cellIdx = tempCellGrid[lifeCellPosition.x, lifeCellPosition.y];
+                var cellIdx = CellPositionToIndex(instance.GridWidth, cellPosition.x, cellPosition.y);
                 instance.IsLife[cellIdx] = true;
                 instance.IsLifeNextSim[cellIdx] = true;
             }
@@ -69,22 +65,25 @@ public static class GameOfLifeInitialization
         return instance;
     }
 
-    private static void InitNeighbours(GameInstance instance, int2[] positions, int[,] tempCellGrid, int gridWidth, int gridHeight)
+    private static void InitNeighbours(GameInstance instance)
     {
-        for (var i = 0; i < positions.Length; i++)
+        var gridWidth = instance.GridWidth;
+        var gridHeight = instance.GridHeight;
+        
+        for (var i = 0; i < instance.CellCount; i++)
         {
-            var pos = positions[i];
+            var pos = CellIndexToPosition(gridWidth, i);
             var x = pos.x;
             var y = pos.y;
             var neighbours = instance.Neighbours[i];
-            InitNeighbour(x, y, 0, 1, tempCellGrid, gridWidth, gridHeight, out neighbours.S);
-            InitNeighbour(x, y, 1, 1, tempCellGrid, gridWidth, gridHeight, out neighbours.SE);
-            InitNeighbour(x, y, 1, 0, tempCellGrid, gridWidth, gridHeight, out neighbours.E);
-            InitNeighbour(x, y, 1, -1, tempCellGrid, gridWidth, gridHeight, out neighbours.NE);
-            InitNeighbour(x, y, 0, -1, tempCellGrid, gridWidth, gridHeight, out neighbours.N);
-            InitNeighbour(x, y, -1, -1, tempCellGrid, gridWidth, gridHeight, out neighbours.NW);
-            InitNeighbour(x, y, -1, 0, tempCellGrid, gridWidth, gridHeight, out neighbours.W);
-            InitNeighbour(x, y, -1, 1, tempCellGrid, gridWidth, gridHeight, out neighbours.SW);
+            InitNeighbour(x, y, 0, 1, gridWidth, gridHeight, out neighbours.S);
+            InitNeighbour(x, y, 1, 1, gridWidth, gridHeight, out neighbours.SE);
+            InitNeighbour(x, y, 1, 0, gridWidth, gridHeight, out neighbours.E);
+            InitNeighbour(x, y, 1, -1, gridWidth, gridHeight, out neighbours.NE);
+            InitNeighbour(x, y, 0, -1, gridWidth, gridHeight, out neighbours.N);
+            InitNeighbour(x, y, -1, -1, gridWidth, gridHeight, out neighbours.NW);
+            InitNeighbour(x, y, -1, 0, gridWidth, gridHeight, out neighbours.W);
+            InitNeighbour(x, y, -1, 1, gridWidth, gridHeight, out neighbours.SW);
             instance.Neighbours[i] = neighbours;
         }
     }
@@ -94,7 +93,6 @@ public static class GameOfLifeInitialization
         int posY,
         int offsetX,
         int offsetY,
-        int[,] grid,
         int gridWidth,
         int gridHeight,
         out int neighbourSlot)
@@ -113,6 +111,16 @@ public static class GameOfLifeInitialization
             return;
         }
 
-        neighbourSlot = grid[testX, testY];
+        neighbourSlot = CellPositionToIndex(gridWidth, testX, testY);
+    }
+    
+    private static int2 CellIndexToPosition(int gridWidth, int index)
+    {
+        return new int2(index / gridWidth, index % gridWidth);
+    }
+
+    private static int CellPositionToIndex(int gridWidth, int x, int y)
+    {
+        return gridWidth * x + y;
     }
 }
